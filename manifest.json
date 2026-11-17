@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "Startboard",
+  "version": "1.1.0",
+  "description": "Página de inicio personalizable: panel de administración visual, motor de temas e importación/exportación. Datos en IndexedDB (Dexie).",
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "chrome_url_overrides": {
+    "newtab": "newtab.html"
+  },
+  "options_ui": {
+    "page": "admin.html",
+    "open_in_tab": true
+  },
+  "action": {
+    "default_title": "Administrar Startboard"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": ["favicon"]
+}

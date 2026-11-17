@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Startboard · Administration</title>
+  <link rel="icon" href="icons/icon32.png">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/admin.css">
+  <style id="preview-css"></style>
+</head>
+<body class="admin">
+  <aside class="side">
+    <div class="side-brand"><img src="icons/icon48.png" alt="" width="32" height="32"><strong>Startboard</strong></div>
+    <nav id="tabs">
+      <button data-tab="dash" aria-selected="true">▦ Contenido</button>
+      <button data-tab="themes">🎨 Temas</button>
+      <button data-tab="settings">⚙ Ajustes</button>
+      <button data-tab="data">⇅ Datos</button>
+    </nav>
+    <a class="side-link" id="open-newtab" href="newtab.html">↗ Ver página de inicio</a>
+  </aside>
+
+  <main>
+    <!-- ======================= CONTENIDO ======================= -->
+    <section class="tab" id="tab-dash">
+      <div class="toolbar">
+        <div>
+          <h1>Contenido</h1>
+          <p class="hint">Arrastra las secciones por su cabecera y los enlaces por su tarjeta (también entre secciones). Haz clic en un enlace para editarlo.</p>
+        </div>
+        <div class="toolbar-actions">
+          <button class="btn" id="btn-add-section">＋ Nueva sección</button>
+        </div>
+      </div>
+      <div class="page-bar">
+        <div id="page-tabs" class="page-tabs" role="tablist" aria-label="Páginas"></div>
+        <button class="btn small" id="btn-page-add">＋ Página</button>
+        <span class="page-tools">
+          <button class="btn small" id="btn-page-edit" title="Renombrar / cambiar icono de la página">✎</button>
+          <button class="btn small" id="btn-page-left" title="Mover a la izquierda">◀</button>
+          <button class="btn small" id="btn-page-right" title="Mover a la derecha">▶</button>
+          <button class="btn small danger" id="btn-page-del" title="Eliminar página">🗑</button>
+        </span>
+      </div>
+      <div class="scope dash-scope" id="dash-scope">
+        <div class="dash-wrap"><div id="dash"></div></div>
+      </div>
+    </section>
+
+    <!-- ======================= TEMAS ======================= -->
+    <section class="tab" id="tab-themes" hidden>
+      <div class="toolbar">
+        <div>
+          <h1>Temas</h1>
+          <p class="hint">Un tema define colores, fondo, tipografía y forma. Los integrados no se modifican: personalízalos para crear una copia propia.</p>
+        </div>
+        <div class="toolbar-actions">
+          <button class="btn" id="btn-theme-import">Importar tema…</button>
+          <button class="btn primary" id="btn-theme-new">＋ Nuevo tema</button>
+          <input type="file" id="theme-file" accept="application/json,.json" hidden>
+        </div>
+      </div>
+
+      <div id="theme-list" class="theme-grid"></div>
+
+      <div id="theme-editor" class="editor" hidden>
+        <div class="editor-form">
+          <div class="editor-head">
+            <input id="theme-name" class="name-input" maxlength="60" placeholder="Nombre del tema" aria-label="Nombre del tema">
+            <div class="editor-actions">
+              <button class="btn" id="theme-cancel">Cancelar</button>
+              <button class="btn" id="theme-save">Guardar</button>
+              <button class="btn primary" id="theme-save-apply">Guardar y activar</button>
+            </div>
+          </div>
+          <div id="theme-fields"></div>
+        </div>
+        <div class="editor-preview">
+          <h3>Vista previa en vivo</h3>
+          <div class="scope" id="theme-preview"><div class="dash-wrap"><div id="preview-dash"></div></div></div>
+          <p class="hint">El CSS personalizado también se aplica en la vista previa (limitado a este recuadro).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================= AJUSTES ======================= -->
+    <section class="tab" id="tab-settings" hidden>
+      <div class="toolbar"><div><h1>Ajustes</h1><p class="hint">Los cambios se guardan automáticamente.</p></div></div>
+      <form id="settings-form" class="cards" autocomplete="off">
+        <fieldset class="card">
+          <legend>Cabecera</legend>
+          <label>Título <input name="title" maxlength="80"></label>
+          <label>Subtítulo <input name="subtitle" maxlength="160"></label>
+          <label>Texto del pie <input name="footer" maxlength="300"></label>
+          <div class="sub">
+            <strong>Botones de cabecera</strong>
+            <div id="header-links"></div>
+            <button type="button" class="btn small" id="btn-add-hlink">＋ Añadir botón</button>
+          </div>
+        </fieldset>
+
+        <fieldset class="card">
+          <legend>Tema</legend>
+          <label>Modo
+            <select name="themeMode"><option value="fixed">Tema fijo (elegido en la pestaña Temas)</option><option value="system">Seguir al sistema (claro / oscuro)</option></select>
+          </label>
+          <div class="row2">
+            <label>Cuando el sistema es claro <select name="themeLightId"></select></label>
+            <label>Cuando el sistema es oscuro <select name="themeDarkId"></select></label>
+          </div>
+        </fieldset>
+
+        <fieldset class="card">
+          <legend>Aspecto y comportamiento</legend>
+          <div class="row2">
+            <label>Disposición
+              <select name="layout"><option value="auto">Rejilla automática</option><option value="vertical">Una columna</option><option value="horizontal">Columnas en fila</option></select>
+            </label>
+            <label>Tamaño de los enlaces
+              <select name="itemSize"><option value="small">Pequeño</option><option value="medium">Mediano</option><option value="large">Grande</option></select>
+            </label>
+          </div>
+          <div class="row2">
+            <label>Abrir enlaces en
+              <select name="openIn"><option value="same">La misma pestaña</option><option value="new">Pestaña nueva</option></select>
+            </label>
+            <label>Iconos (favicons)
+              <select name="faviconProvider">
+                <option value="auto">Automático</option>
+                <option value="browser">Del navegador (Chrome/Edge, local)</option>
+                <option value="duckduckgo">DuckDuckGo</option>
+                <option value="google">Google</option>
+                <option value="none">Solo letras</option>
+              </select>
+            </label>
+          </div>
+          <label>Ancho máximo (px) <input name="maxWidth" type="number" min="600" max="4000" step="50"></label>
+          <label class="check"><input name="showSearch" type="checkbox"> Mostrar buscador</label>
+        </fieldset>
+
+        <fieldset class="card">
+          <legend>Búsqueda</legend>
+          <label>Buscador por defecto <small>(usa <code>%s</code> donde va el texto)</small>
+            <input name="searchEngine" placeholder="https://www.google.com/search?q=%s"></label>
+          <label>Atajos <small>(uno por línea: <code>clave url-con-%s</code>; se usan escribiendo «clave texto»)</small>
+            <textarea name="bangs" rows="6" spellcheck="false"></textarea></label>
+        </fieldset>
+
+        <fieldset class="card wide">
+          <legend>CSS personalizado (global)</legend>
+          <textarea name="customCss" rows="7" spellcheck="false" placeholder=".item-title { letter-spacing: .02em; }"></textarea>
+          <p class="hint">Se aplica por encima del tema activo en la página de inicio.</p>
+        </fieldset>
+      </form>
+    </section>
+
+    <!-- ======================= DATOS ======================= -->
+    <section class="tab" id="tab-data" hidden>
+      <div class="toolbar"><div><h1>Datos</h1><p class="hint">Todo se guarda en IndexedDB, dentro de tu navegador. Exporta un archivo para llevarlo a otro equipo o tener una copia externa.</p></div></div>
+      <div class="cards">
+        <div class="card">
+          <h2>Exportar</h2>
+          <label class="check"><input type="checkbox" id="exp-content" checked> Secciones y enlaces</label>
+          <label class="check"><input type="checkbox" id="exp-settings" checked> Ajustes</label>
+          <label class="check"><input type="checkbox" id="exp-themes" checked> Temas personalizados</label>
+          <button class="btn primary" id="btn-export">Descargar JSON</button>
+        </div>
+
+        <div class="card">
+          <h2>Importar</h2>
+          <input type="file" id="import-file" accept="application/json,.json">
+          <div id="import-preview" hidden>
+            <p id="import-summary" class="summary"></p>
+            <ul id="import-warnings" class="warnings"></ul>
+            <fieldset class="modes">
+              <label class="check"><input type="radio" name="import-mode" value="merge" checked> <span><strong>Combinar</strong> — añade al contenido actual; conserva tus ajustes.</span></label>
+              <label class="check"><input type="radio" name="import-mode" value="replace"> <span><strong>Reemplazar</strong> — sustituye lo que incluya el archivo (incluidos los ajustes).</span></label>
+            </fieldset>
+            <button class="btn primary" id="btn-import">Importar</button>
+            <button class="btn" id="btn-import-cancel">Cancelar</button>
+          </div>
+          <hr>
+          <h3>Desde marcadores del navegador</h3>
+          <p class="hint">Exporta tus marcadores como HTML desde el gestor de marcadores y súbelos aquí: cada carpeta se convierte en una sección.</p>
+          <input type="file" id="bookmarks-file" accept=".html,.htm,text/html">
+        </div>
+
+        <div class="card wide">
+          <div class="card-head">
+            <h2>Copias de seguridad automáticas</h2>
+            <button class="btn small" id="btn-backup-now">Crear copia ahora</button>
+          </div>
+          <p class="hint">Se crea una copia antes de cada importación o restauración. Se conservan las 10 últimas.</p>
+          <div id="backup-list"></div>
+        </div>
+
+        <div class="card wide danger">
+          <h2>Zona de peligro</h2>
+          <p class="hint">Borra todo y vuelve a los datos de ejemplo. Se crea antes una copia de seguridad.</p>
+          <button class="btn danger" id="btn-reset">Restablecer a valores de fábrica</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ======================= DIÁLOGOS ======================= -->
+  <dialog id="dlg-item">
+    <form id="form-item">
+      <h3 id="item-dlg-title">Enlace</h3>
+      <label>Título <input name="title" required maxlength="160"></label>
+      <label>URL <input name="url" required placeholder="https://…" spellcheck="false"></label>
+      <label>Descripción <input name="description" maxlength="300"></label>
+      <div class="row2">
+        <label>Sección <select name="sectionId"></select></label>
+        <label>Abrir en
+          <select name="target"><option value="default">Según ajustes</option><option value="same">Misma pestaña</option><option value="new">Pestaña nueva</option></select>
+        </label>
+      </div>
+      <fieldset>
+        <legend>Icono</legend>
+        <div class="icon-row">
+          <div id="item-icon-preview" class="icon-preview"></div>
+          <select name="iconType">
+            <option value="favicon">Automático (favicon)</option>
+            <option value="emoji">Emoji / texto</option>
+            <option value="url">Imagen por URL</option>
+            <option value="upload">Subir imagen</option>
+          </select>
+          <input name="icon" placeholder="🚀" spellcheck="false">
+          <button type="button" class="btn small" id="item-icon-file">Elegir…</button>
+          <input type="file" id="item-icon-input" accept="image/*" hidden>
+        </div>
+      </fieldset>
+      <label>Etiquetas <small>(solo para el buscador)</small> <input name="tags" maxlength="200"></label>
+      <p class="form-error" id="item-error" hidden></p>
+      <div class="actions"><button type="button" class="btn" data-close>Cancelar</button><button class="btn primary">Guardar</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="dlg-section">
+    <form id="form-section">
+      <h3 id="section-dlg-title">Sección</h3>
+      <label>Título <input name="title" required maxlength="120"></label>
+      <label>Icono <small>(emoji o URL de imagen)</small> <input name="icon" placeholder="💻" spellcheck="false"></label>
+      <label>Página <select name="pageId"></select></label>
+      <div>
+        <span class="lbl">Color de la cabecera</span>
+        <div class="swatches" id="section-swatches"></div>
+        <input type="color" name="color" aria-label="Color personalizado">
+      </div>
+      <div class="row2">
+        <label>Ancho
+          <select name="span"><option value="1">1 columna</option><option value="2">2 columnas</option><option value="3">3 columnas</option></select>
+        </label>
+        <label>Enlaces como
+          <select name="layout"><option value="grid">Rejilla de iconos</option><option value="list">Lista</option></select>
+        </label>
+      </div>
+      <label class="check"><input type="checkbox" name="collapsed"> Plegada por defecto</label>
+      <div class="actions"><button type="button" class="btn" data-close>Cancelar</button><button class="btn primary">Guardar</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="dlg-page">
+    <form id="form-page">
+      <h3 id="page-dlg-title">Página</h3>
+      <div class="row2">
+        <label>Título <input name="title" required maxlength="60"></label>
+        <label>Icono <small>(emoji, opcional)</small> <input name="icon" maxlength="8" placeholder="🏠"></label>
+      </div>
+      <div class="actions"><button type="button" class="btn" data-close>Cancelar</button><button class="btn primary">Guardar</button></div>
+    </form>
+  </dialog>
+
+  <div id="toast" role="status" aria-live="polite" hidden></div>
+  <script type="module" src="js/admin.js"></script>
+</body>
+</html>

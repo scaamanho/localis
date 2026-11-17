@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nueva pestaña</title>
+  <link rel="icon" href="icons/icon32.png">
+  <script src="js/boot.js"></script>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/newtab.css">
+  <style id="theme-css"></style>
+  <style id="user-css"></style>
+</head>
+<body class="scope">
+  <header class="top">
+    <div class="top-inner">
+      <div class="brand">
+        <h1 id="title"></h1>
+        <p id="subtitle"></p>
+      </div>
+      <nav id="header-links" class="hlinks"></nav>
+    </div>
+    <div class="bar">
+      <label class="search" id="search-box">
+        <span class="search-label">Buscar</span>
+        <input id="q" type="search" autocomplete="off" spellcheck="false" placeholder="Filtra, o escribe «g texto» para buscar en la web…">
+      </label>
+      <div class="controls">
+        <label class="ctl"><span>Tema</span><select id="theme-select"></select></label>
+        <div class="ctl"><span>Disposición</span>
+          <div class="seg" id="layout-seg">
+            <button data-layout="auto" title="Rejilla automática">▦</button>
+            <button data-layout="vertical" title="Una columna">☰</button>
+            <button data-layout="horizontal" title="Columnas en fila">▥</button>
+          </div>
+        </div>
+        <div class="ctl"><span>Tamaño</span>
+          <div class="seg" id="size-seg">
+            <button data-size="small" title="Pequeño">S</button>
+            <button data-size="medium" title="Mediano">M</button>
+            <button data-size="large" title="Grande">L</button>
+          </div>
+        </div>
+        <button id="admin-btn" class="admin-btn" title="Abrir administración">⚙ Administrar</button>
+      </div>
+    </div>
+    <nav id="page-tabs" class="ptabs" role="tablist" aria-label="Páginas" hidden></nav>
+  </header>
+
+  <main class="dash-wrap" id="wrap">
+    <div id="dash"></div>
+    <div id="empty" class="empty" hidden>
+      <p>Todavía no hay nada aquí.</p>
+      <button class="admin-btn" data-open-admin>Crear mi primera sección</button>
+    </div>
+    <p id="no-results" class="empty" hidden>Sin coincidencias. Pulsa <kbd>Enter</kbd> para buscar en la web.</p>
+  </main>
+
+  <footer id="footer"></footer>
+  <script type="module" src="js/newtab.js"></script>
+</body>
+</html>
