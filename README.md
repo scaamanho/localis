@@ -3,15 +3,25 @@
 Browser extension (Manifest V3) that replaces the new tab page with a customizable start page.
 No build step: HTML + ES modules + [Dexie](https://dexie.org) included in `lib/`.
 
-## Install (Chrome / Edge / Brave)
+## Install (Chromium browsers)
 
-1. Open `chrome://extensions` and enable **Developer mode**.
-2. Select **Load unpacked** and choose this folder.
-3. Open a new tab. To edit, use **⚙ Manage** or the extension icon.
+1. Download the extension ZIP from [GitHub Releases](https://github.com/scaamanho/tabra/releases) and extract it. Do not use GitHub's automatically generated “Source code” archive.
+2. Open the extensions page for your browser:
+
+    | Browser | Extensions page |
+    |---|---|
+    | Chrome | `chrome://extensions` |
+    | Brave | `brave://extensions` |
+    | Edge | `edge://extensions` |
+    | Vivaldi | `vivaldi://extensions` |
+
+3. Turn on **Developer mode** on that page.
+4. Select **Load unpacked** and choose the extracted Tabra folder.
+5. Open a new tab. To edit, use **⚙ Manage** or the extension icon.
 
 ## GitHub Actions package
 
-Every push and manual workflow run creates a versioned extension ZIP and uploads it as the `tabra-extension` artifact. Download it from the workflow run in **Actions**. The archive contains the extension files only; it excludes `index.html`, landing page styles, and screenshots.
+Download the extension ZIP asset from [GitHub Releases](https://github.com/scaamanho/tabra/releases), not GitHub's automatically generated “Source code” archive. Publishing a release attaches the extension-only ZIP. To add it to an existing release, run **Package extension** from Actions and enter its tag in `release_tag`. Each push and manual workflow run also creates a versioned `tabra-extension` artifact in Actions. The extension ZIP excludes `index.html`, landing page styles, and screenshots.
 
 ## Features
 

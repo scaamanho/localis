@@ -3,6 +3,13 @@ name: Package extension
 on:
   push:
   workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Existing release tag to attach the extension ZIP to
+        required: false
+        type: string
+  release:
+    types: [published]
 
 permissions:
   contents: read
@@ -10,9 +17,15 @@ permissions:
 jobs:
   package:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      archive: ${{ steps.zip.outputs.archive }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.release_tag || github.ref }}
 
       - name: Create extension ZIP
         id: zip
@@ -46,3 +59,23 @@ jobs:
           path: ${{ steps.zip.outputs.archive }}
           if-no-files-found: error
           retention-days: 30
+
+  publish-release:
+    if: github.event_name == 'release' || inputs.release_tag != ''
+    needs: package
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download extension ZIP
+        uses: actions/download-artifact@v4
+        with:
+          name: tabra-extension
+          path: dist
+
+      - name: Attach extension ZIP to release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ARCHIVE: ${{ needs.package.outputs.archive }}
+          RELEASE_TAG: ${{ github.event.release.tag_name || inputs.release_tag }}
+        run: gh release upload "$RELEASE_TAG" "$ARCHIVE" --clobber
