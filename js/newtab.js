@@ -1,5 +1,5 @@
 import { liveQuery, db, getSettings, saveSettings, updateSection } from './db.js';
-import { allThemes, findTheme, applyTheme, sanitizeCss, contrastText, effectiveThemeId } from './themes.js';
+import { groupedThemes, findTheme, applyTheme, sanitizeCss, contrastText, effectiveThemeId } from './themes.js';
 import { renderDashboard } from './render.js';
 import { normalizeUrl } from './io.js';
 
@@ -84,7 +84,7 @@ function paint() {
   $('#theme-css').textContent = sanitizeCss(theme.customCss);
   $('#user-css').textContent = sanitizeCss(settings.customCss);
 
-  document.title = settings.title || 'Nueva pestaña';
+  document.title = settings.title || 'New tab';
   $('#title').textContent = settings.title;
   $('#subtitle').textContent = settings.subtitle;
   $('#footer').textContent = settings.footer;
@@ -100,7 +100,12 @@ function paint() {
   }));
 
   const sel = $('#theme-select');
-  sel.replaceChildren(...allThemes(customThemes).map((t) => new Option(t.name, t.id, false, t.id === theme.id)));
+  sel.replaceChildren(...groupedThemes(customThemes).map((group) => {
+    const options = document.createElement('optgroup');
+    options.label = group.label;
+    options.append(...group.themes.map((t) => new Option(t.name, t.id, false, t.id === theme.id)));
+    return options;
+  }));
   sel.value = theme.id;
 
   for (const b of document.querySelectorAll('#layout-seg button')) b.setAttribute('aria-pressed', String(b.dataset.layout === settings.layout));
@@ -128,7 +133,7 @@ function drawBoard() {
       sec.querySelector('.sec-title').after(tag);
     }
   }
-  $('#empty p').textContent = sections.length ? 'Esta página está vacía.' : 'Todavía no hay nada aquí.';
+  $('#empty p').textContent = sections.length ? 'This page is empty.' : 'There is nothing here yet.';
   $('#empty').hidden = list.length > 0 || !!term;
   applyFilter();
 }
@@ -236,6 +241,6 @@ liveQuery(async () => ({
   error(err) {
     console.error(err);
     $('#empty').hidden = false;
-    $('#empty').querySelector('p').textContent = 'No se pudo abrir la base de datos: ' + (err?.message || err);
+    $('#empty').querySelector('p').textContent = 'Could not open the database: ' + (err?.message || err);
   },
 });

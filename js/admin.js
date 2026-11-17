@@ -5,7 +5,7 @@ import {
   addPage, updatePage, deletePage, movePage,
 } from './db.js';
 import {
-  allThemes, findTheme, applyTheme, sanitizeTheme, sanitizeCss, newThemeId, normHex, effectiveThemeId,
+  groupedThemes, findTheme, applyTheme, sanitizeTheme, sanitizeCss, newThemeId, normHex, effectiveThemeId,
   THEME_DEFAULTS, FONT_PRESETS,
 } from './themes.js';
 import { renderDashboard, makeIcon } from './render.js';
@@ -72,6 +72,7 @@ const dashEl = $('#dash');
 
 function paintDash() {
   applyTheme(activeTheme(), $('#dash-scope'));
+  $('#dash-scope').style.setProperty('--max-w', state.settings.maxWidth + 'px');
   renderDashboard(dashEl, { ...state, sections: pageSections() }, { edit: true });
   renderPageBar();
 }
@@ -101,11 +102,11 @@ dashEl.addEventListener('click', async (e) => {
       case 'toggle': await updateSection(id, { collapsed: !state.sections.find((s) => s.id === id).collapsed }); break;
       case 'edit-item': openItemDialog(state.items.find((i) => i.id === id)); break;
       case 'add-item': openItemDialog(null, id); break;
-      case 'dup-item': await duplicateItem(id); toast('Enlace duplicado'); break;
+      case 'dup-item': await duplicateItem(id); toast('Link duplicated'); break;
       case 'del-item': {
         const it = state.items.find((i) => i.id === id);
         const undo = await deleteItem(id);
-        toast(`«${it.title}» eliminado`, { label: 'Deshacer', fn: undo });
+        toast(`"${it.title}" deleted`, { label: 'Undo', fn: undo });
         break;
       }
       case 'edit-section': openSectionDialog(state.sections.find((s) => s.id === id)); break;
@@ -116,7 +117,7 @@ dashEl.addEventListener('click', async (e) => {
         const sec = state.sections.find((s) => s.id === id);
         const n = state.items.filter((i) => i.sectionId === id).length;
         const undo = await deleteSection(id);
-        toast(`Sección «${sec.title}» eliminada${n ? ` (${n} enlaces)` : ''}`, { label: 'Deshacer', fn: undo });
+        toast(`Section "${sec.title}" deleted${n ? ` (${n} links)` : ''}`, { label: 'Undo', fn: undo });
         break;
       }
     }
@@ -135,7 +136,7 @@ let editingPageId = null;
 
 function openPageDialog(page) {
   editingPageId = page ? page.id : null;
-  $('#page-dlg-title').textContent = page ? 'Editar página' : 'Nueva página';
+  $('#page-dlg-title').textContent = page ? 'Edit page' : 'New page';
   formPage.elements.title.value = page ? page.title : '';
   formPage.elements.icon.value = page ? page.icon : '';
   dlgPage.showModal();
@@ -144,7 +145,7 @@ function openPageDialog(page) {
 formPage.addEventListener('submit', async (e) => {
   e.preventDefault();
   const f = formPage.elements;
-  const data = { title: f.title.value.trim() || 'Página', icon: f.icon.value.trim().slice(0, 8) };
+  const data = { title: f.title.value.trim() || 'Page', icon: f.icon.value.trim().slice(0, 8) };
   try {
     if (editingPageId != null) await updatePage(editingPageId, data);
     else await saveSettings({ activePageId: await addPage(data) });
@@ -158,10 +159,10 @@ $('#btn-page-right').addEventListener('click', () => movePage(curPage().id, 1).c
 $('#btn-page-del').addEventListener('click', async () => {
   const p = curPage();
   const n = state.sections.filter((s) => s.pageId === p.id).length;
-  if (n && !confirm(`¿Eliminar la página «${p.title}» con sus ${n} secciones?`)) return;
+  if (n && !confirm(`Delete page "${p.title}" and its ${n} sections?`)) return;
   try {
     const undo = await deletePage(p.id);
-    toast(`Página «${p.title}» eliminada`, { label: 'Deshacer', fn: undo });
+    toast(`Page "${p.title}" deleted`, { label: 'Undo', fn: undo });
   } catch (err) { fail(err); }
 });
 
@@ -252,7 +253,7 @@ function updateItemIconUI() {
   const type = f.iconType.value;
   f.icon.hidden = type === 'favicon' || type === 'upload';
   $('#item-icon-file').hidden = type !== 'upload';
-  f.icon.placeholder = type === 'emoji' ? '🚀' : 'https://…/icono.png';
+  f.icon.placeholder = type === 'emoji' ? '🚀' : 'https://…/icon.png';
   const url = normalizeUrl(f.url.value) || f.url.value;
   const prev = makeIcon({ iconType: type, icon: f.icon.value.trim(), url, title: f.title.value }, state.settings.faviconProvider);
   $('#item-icon-preview').replaceChildren(prev);
@@ -269,7 +270,7 @@ $('#item-icon-input').addEventListener('change', async (e) => {
 function openItemDialog(item, sectionId) {
   const f = formItem.elements;
   editingItemId = item ? item.id : null;
-  $('#item-dlg-title').textContent = item ? 'Editar enlace' : 'Nuevo enlace';
+  $('#item-dlg-title').textContent = item ? 'Edit link' : 'New link';
   f.sectionId.replaceChildren(...state.sections.map((s) => new Option(s.title, s.id)));
   const src = item || { title: '', url: '', description: '', iconType: 'favicon', icon: '', tags: '', target: 'default', sectionId };
   for (const k of ['title', 'url', 'description', 'iconType', 'icon', 'tags', 'target', 'sectionId']) f[k].value = src[k] ?? '';
@@ -286,10 +287,10 @@ formItem.addEventListener('submit', async (e) => {
   const url = normalizeUrl(f.url.value);
   const type = f.iconType.value;
   const icon = f.icon.value.trim();
-  const problem = !url ? 'La URL no es válida (se admiten http, https, ftp, mailto, chrome, file…).'
-    : type === 'url' && !/^(https?:|data:image\/)/i.test(icon) ? 'La URL del icono debe empezar por http(s):'
-    : type === 'upload' && !icon ? 'Elige una imagen para subir.'
-    : type === 'emoji' && !icon ? 'Escribe un emoji o texto corto.' : '';
+  const problem = !url ? 'The URL is invalid (http, https, ftp, mailto, chrome, file and others are supported).'
+    : type === 'url' && !/^(https?:|data:image\/)/i.test(icon) ? 'The icon URL must start with http(s):'
+    : type === 'upload' && !icon ? 'Choose an image to upload.'
+    : type === 'emoji' && !icon ? 'Enter an emoji or short text.' : '';
   if (problem) { err.textContent = problem; err.hidden = false; return; }
   const data = {
     title: f.title.value.trim(), url, description: f.description.value.trim(), target: f.target.value,
@@ -307,6 +308,7 @@ const dlgSec = $('#dlg-section');
 const formSec = $('#form-section');
 let editingSectionId = null;
 const SWATCHES = ['#7c5cff', '#4f8cff', '#2fd6a3', '#7bd957', '#ffb020', '#ff7a45', '#ff6fa5', '#e0485c', '#9aa4b8', '#2b3140'];
+const DEFAULT_SECTION_COLOR = '#4f8cff';
 
 $('#section-swatches').replaceChildren(...SWATCHES.map((c) => {
   const b = el('button'); b.type = 'button'; b.style.setProperty('--c', c); b.dataset.color = c; b.title = c;
@@ -319,11 +321,11 @@ formSec.elements.color.addEventListener('input', syncSwatches);
 function openSectionDialog(sec) {
   const f = formSec.elements;
   editingSectionId = sec ? sec.id : null;
-  $('#section-dlg-title').textContent = sec ? 'Editar sección' : 'Nueva sección';
-  const src = sec || { title: '', icon: '', color: SWATCHES[0], span: 1, layout: 'grid', collapsed: false };
+  $('#section-dlg-title').textContent = sec ? 'Edit section' : 'New section';
+  const src = sec || { title: '', icon: '', color: DEFAULT_SECTION_COLOR, span: 1, layout: 'grid', collapsed: false };
   f.pageId.replaceChildren(...state.pages.map((p) => new Option(p.title, p.id)));
   f.pageId.value = String(sec ? sec.pageId : curPage().id);
-  f.title.value = src.title; f.icon.value = src.icon; f.color.value = normHex(src.color, SWATCHES[0]);
+  f.title.value = src.title; f.icon.value = src.icon; f.color.value = normHex(src.color, DEFAULT_SECTION_COLOR);
   f.span.value = String(src.span); f.layout.value = src.layout; f.collapsed.checked = !!src.collapsed;
   syncSwatches();
   dlgSec.showModal();
@@ -332,7 +334,7 @@ function openSectionDialog(sec) {
 formSec.addEventListener('submit', async (e) => {
   e.preventDefault();
   const f = formSec.elements;
-  const data = { pageId: Number(f.pageId.value), title: f.title.value.trim() || 'Sección', icon: f.icon.value.trim(), color: f.color.value, span: Number(f.span.value), layout: f.layout.value, collapsed: f.collapsed.checked };
+  const data = { pageId: Number(f.pageId.value), title: f.title.value.trim() || 'Section', icon: f.icon.value.trim(), color: f.color.value, span: Number(f.span.value), layout: f.layout.value, collapsed: f.collapsed.checked };
   try {
     if (editingSectionId != null) await updateSection(editingSectionId, data);
     else await addSection(data);
@@ -345,39 +347,45 @@ const themeList = $('#theme-list');
 
 function renderThemeList() {
   const activeId = activeTheme().id;
-  themeList.replaceChildren(...allThemes(state.customThemes).map((t) => {
-    const card = el('article', 'theme-card');
-    card.dataset.active = String(t.id === activeId);
-    const sw = el('div', 'theme-swatch');
-    sw.style.background = /gradient\(/i.test(t.bgImage) ? t.bgImage : t.bg;
-    sw.style.setProperty('--r', t.radius + 'px');
-    const dots = [t.accent, t.surface, t.item].map((c) => { const i = el('i'); i.style.setProperty('--s', c); i.style.background = c; return i; });
-    sw.append(...dots);
-    const info = el('div', 'theme-info');
-    info.append(el('strong', null, t.name), el('span', 'badge' + (t.id === activeId ? ' on' : ''), t.id === activeId ? 'Activo' : t.builtin ? 'Integrado' : 'Propio'));
-    const acts = el('div', 'theme-actions');
-    const btn = (label, fn, cls = '') => { const b = el('button', `btn small ${cls}`, label); b.type = 'button'; b.addEventListener('click', () => Promise.resolve(fn()).catch(fail)); acts.append(b); };
-    if (t.id !== activeId) btn('Activar', () => saveSettings({ themeId: t.id, themeMode: 'fixed' }), 'primary');
-    if (t.builtin) btn('Personalizar', () => startEdit(t, true));
-    else {
-      btn('Editar', () => startEdit(t, false));
-      btn('Duplicar', () => startEdit(t, true));
-      btn('Exportar', () => exportTheme(t));
-      btn('Eliminar', async () => {
-        if (!confirm(`¿Eliminar el tema «${t.name}»?`)) return;
-        if (t.id === activeId) await saveSettings({ themeId: 'midnight' });
-        await deleteTheme(t.id);
-        if (editing?.id === t.id) closeEditor();
-      }, 'danger');
-    }
-    card.append(sw, info, acts);
-    return card;
+  themeList.replaceChildren(...groupedThemes(state.customThemes).map((group) => {
+    const section = el('section', 'theme-group');
+    const grid = el('div', 'theme-grid');
+    grid.replaceChildren(...group.themes.map((t) => {
+      const card = el('article', 'theme-card');
+      card.dataset.active = String(t.id === activeId);
+      const sw = el('div', 'theme-swatch');
+      sw.style.background = /gradient\(/i.test(t.bgImage) ? t.bgImage : t.bg;
+      sw.style.setProperty('--r', t.radius + 'px');
+      const dots = [t.accent, t.surface, t.item].map((c) => { const i = el('i'); i.style.setProperty('--s', c); i.style.background = c; return i; });
+      sw.append(...dots);
+      const info = el('div', 'theme-info');
+      info.append(el('strong', null, t.name), el('span', 'badge' + (t.id === activeId ? ' on' : ''), t.id === activeId ? 'Active' : t.builtin ? 'Built-in' : 'Custom'));
+      const acts = el('div', 'theme-actions');
+      const btn = (label, fn, cls = '') => { const b = el('button', `btn small ${cls}`, label); b.type = 'button'; b.addEventListener('click', () => Promise.resolve(fn()).catch(fail)); acts.append(b); };
+      if (t.id !== activeId) btn('Activate', () => saveSettings({ themeId: t.id, themeMode: 'fixed' }), 'primary');
+      if (t.builtin) btn('Customize', () => startEdit(t, true));
+      else {
+        btn('Edit', () => startEdit(t, false));
+        btn('Duplicate', () => startEdit(t, true));
+        btn('Export', () => exportTheme(t));
+        btn('Delete', async () => {
+          if (!confirm(`Delete theme "${t.name}"?`)) return;
+          if (t.id === activeId) await saveSettings({ themeId: 'midnight' });
+          await deleteTheme(t.id);
+          if (editing?.id === t.id) closeEditor();
+        }, 'danger');
+      }
+      card.append(sw, info, acts);
+      return card;
+    }));
+    section.append(el('h2', null, group.label), grid);
+    return section;
   }));
 }
 
 function exportTheme(t) {
   const { builtin, ...theme } = t;
-  download(`tema-${theme.name.toLowerCase().replace(/\W+/g, '-')}.json`, JSON.stringify({ format: FORMAT, version: VERSION, exportedAt: new Date().toISOString(), themes: [theme] }, null, 2));
+  download(`theme-${theme.name.toLowerCase().replace(/\W+/g, '-')}.json`, JSON.stringify({ format: FORMAT, version: VERSION, exportedAt: new Date().toISOString(), themes: [theme] }, null, 2));
 }
 
 $('#btn-theme-new').addEventListener('click', () => startEdit(activeTheme(), true));
@@ -388,41 +396,41 @@ $('#theme-file').addEventListener('change', async (e) => {
   if (!file) return;
   try {
     const v = parseImportText(await readText(file));
-    if (!v.ok || !v.clean.themes?.length) return toast(v.error || 'El archivo no contiene temas.');
+    if (!v.ok || !v.clean.themes?.length) return toast(v.error || 'The file contains no themes.');
     await importData({ themes: v.clean.themes }, { mode: 'merge', backup: false });
-    toast(`${v.clean.themes.length} tema(s) importado(s)`);
+    toast(`${v.clean.themes.length} theme(s) imported`);
   } catch (err) { fail(err); }
 });
 
 // ------------------------------------------------------------------ TEMAS: editor
 const FIELDS = [
-  { group: 'Colores', items: [
-    { k: 'bg', t: 'color', l: 'Fondo' }, { k: 'surface', t: 'color', l: 'Paneles' }, { k: 'item', t: 'color', l: 'Enlaces' },
-    { k: 'itemHover', t: 'color', l: 'Enlace (hover)' }, { k: 'text', t: 'color', l: 'Texto' }, { k: 'muted', t: 'color', l: 'Texto suave' },
-    { k: 'accent', t: 'color', l: 'Acento' }, { k: 'border', t: 'color', l: 'Bordes' },
+  { group: 'Colors', items: [
+    { k: 'bg', t: 'color', l: 'Background' }, { k: 'surface', t: 'color', l: 'Panels' }, { k: 'item', t: 'color', l: 'Links' },
+    { k: 'itemHover', t: 'color', l: 'Link (hover)' }, { k: 'text', t: 'color', l: 'Text' }, { k: 'muted', t: 'color', l: 'Muted text' },
+    { k: 'accent', t: 'color', l: 'Accent' }, { k: 'border', t: 'color', l: 'Borders' },
   ] },
-  { group: 'Fondo', items: [
-    { k: 'bgImage', t: 'bg', l: 'Imagen / degradado' },
-    { k: 'bgBlur', t: 'range', min: 0, max: 30, l: 'Desenfoque' },
-    { k: 'overlay', t: 'range', min: 0, max: 90, l: 'Oscurecer %' },
+  { group: 'Background', items: [
+    { k: 'bgImage', t: 'bg', l: 'Image / gradient' },
+    { k: 'bgBlur', t: 'range', min: 0, max: 30, l: 'Blur' },
+    { k: 'overlay', t: 'range', min: 0, max: 90, l: 'Darken %' },
   ] },
-  { group: 'Cristal', items: [
-    { k: 'surfaceOpacity', t: 'range', min: 0, max: 100, l: 'Opacidad paneles' },
-    { k: 'surfaceBlur', t: 'range', min: 0, max: 30, l: 'Desenfoque paneles' },
-    { k: 'itemOpacity', t: 'range', min: 0, max: 100, l: 'Opacidad enlaces' },
+  { group: 'Glass', items: [
+    { k: 'surfaceOpacity', t: 'range', min: 0, max: 100, l: 'Panel opacity' },
+    { k: 'surfaceBlur', t: 'range', min: 0, max: 30, l: 'Panel blur' },
+    { k: 'itemOpacity', t: 'range', min: 0, max: 100, l: 'Link opacity' },
   ] },
-  { group: 'Forma', items: [
-    { k: 'radius', t: 'range', min: 0, max: 30, l: 'Redondeo' },
-    { k: 'gap', t: 'range', min: 4, max: 40, l: 'Separación' },
-    { k: 'shadow', t: 'range', min: 0, max: 80, l: 'Sombra' },
-    { k: 'secStyle', t: 'select', l: 'Cabecera', options: [['solid', 'Sólida'], ['outline', 'Subrayada'], ['minimal', 'Minimal']] },
+  { group: 'Shape', items: [
+    { k: 'radius', t: 'range', min: 0, max: 30, l: 'Corner radius' },
+    { k: 'gap', t: 'range', min: 4, max: 40, l: 'Spacing' },
+    { k: 'shadow', t: 'range', min: 0, max: 80, l: 'Shadow' },
+    { k: 'secStyle', t: 'select', l: 'Header', options: [['solid', 'Solid'], ['outline', 'Underlined'], ['minimal', 'Minimal']] },
   ] },
-  { group: 'Tipografía', items: [
-    { k: 'fontSize', t: 'range', min: 11, max: 22, l: 'Tamaño base' },
-    { k: 'font', t: 'font', l: 'Texto' },
-    { k: 'headingFont', t: 'font', l: 'Títulos', allowEmpty: true },
+  { group: 'Typography', items: [
+    { k: 'fontSize', t: 'range', min: 11, max: 22, l: 'Base size' },
+    { k: 'font', t: 'font', l: 'Text' },
+    { k: 'headingFont', t: 'font', l: 'Headings', allowEmpty: true },
   ] },
-  { group: 'Avanzado', items: [{ k: 'customCss', t: 'css', l: 'CSS del tema' }] },
+  { group: 'Advanced', items: [{ k: 'customCss', t: 'css', l: 'Theme CSS' }] },
 ];
 
 let editing = null;
@@ -430,10 +438,10 @@ let dirty = false;
 let previewQueued = false;
 
 function startEdit(theme, asCopy) {
-  if (dirty && !confirm('Hay cambios sin guardar en el editor. ¿Descartarlos?')) return;
+  if (dirty && !confirm('There are unsaved changes in the editor. Discard them?')) return;
   const { builtin, ...rest } = theme;
   editing = { ...THEME_DEFAULTS, ...rest };
-  if (asCopy) { editing.id = newThemeId(); editing.name = `${theme.name} (copia)`; }
+  if (asCopy) { editing.id = newThemeId(); editing.name = `${theme.name} (copy)`; }
   dirty = asCopy;
   $('#theme-name').value = editing.name;
   buildFields();
@@ -494,8 +502,8 @@ function fieldNode(f) {
     ctl.append(s);
   } else if (f.t === 'font') {
     const s = el('select');
-    s.append(...(f.allowEmpty ? [new Option('Igual que el texto', '')] : []), ...FONT_PRESETS.map(([n, stack]) => new Option(n, stack)), new Option('Personalizada…', '__custom'));
-    const t = el('input'); t.type = 'text'; t.value = v || ''; t.spellcheck = false; t.placeholder = '"Mi fuente", sans-serif';
+    s.append(...(f.allowEmpty ? [new Option('Same as text', '')] : []), ...FONT_PRESETS.map(([n, stack]) => new Option(n, stack)), new Option('Custom…', '__custom'));
+    const t = el('input'); t.type = 'text'; t.value = v || ''; t.spellcheck = false; t.placeholder = '"My font", sans-serif';
     const sync = () => { s.value = [...s.options].some((o) => o.value === t.value) ? t.value : '__custom'; };
     sync();
     s.addEventListener('input', () => { if (s.value !== '__custom') { t.value = s.value; set(f.k, s.value); } else t.focus(); });
@@ -505,18 +513,18 @@ function fieldNode(f) {
     ctl.append(t);
   } else if (f.t === 'bg') {
     ctl.style.flexWrap = 'wrap';
-    const t = el('input'); t.type = 'text'; t.spellcheck = false; t.placeholder = 'https://… o linear-gradient(…)';
-    const show = () => { t.value = String(editing.bgImage).startsWith('data:') ? '(imagen subida)' : editing.bgImage; };
+    const t = el('input'); t.type = 'text'; t.spellcheck = false; t.placeholder = 'https://… or linear-gradient(…)';
+    const show = () => { t.value = String(editing.bgImage).startsWith('data:') ? '(uploaded image)' : editing.bgImage; };
     show();
-    t.addEventListener('input', () => { if (t.value !== '(imagen subida)') set(f.k, t.value.trim()); });
-    const up = el('button', 'btn small', 'Subir…'); up.type = 'button';
+    t.addEventListener('input', () => { if (t.value !== '(uploaded image)') set(f.k, t.value.trim()); });
+    const up = el('button', 'btn small', 'Upload…'); up.type = 'button';
     const file = el('input'); file.type = 'file'; file.accept = 'image/*'; file.hidden = true;
     up.addEventListener('click', () => file.click());
     file.addEventListener('change', async () => {
       if (!file.files[0]) return;
       try { set(f.k, await imageToDataUrl(file.files[0], 1920, 'image/jpeg', 0.82)); show(); } catch (err) { fail(err); }
     });
-    const clr = el('button', 'btn small', 'Quitar'); clr.type = 'button';
+    const clr = el('button', 'btn small', 'Remove'); clr.type = 'button';
     clr.addEventListener('click', () => { set(f.k, ''); show(); });
     ctl.append(t, up, clr, file);
   }
@@ -539,17 +547,17 @@ function refreshPreview() {
 
 async function saveEditing(activate) {
   if (!editing) return;
-  const clean = sanitizeTheme({ ...editing, name: editing.name.trim() || 'Sin nombre' });
+  const clean = sanitizeTheme({ ...editing, name: editing.name.trim() || 'Untitled' });
   clean.id = editing.id;
   await saveTheme(clean);
   if (activate) await saveSettings({ themeId: clean.id, themeMode: 'fixed' });
   dirty = false;
   editing = { ...THEME_DEFAULTS, ...clean };
-  toast(activate ? 'Tema guardado y activado' : 'Tema guardado');
+  toast(activate ? 'Theme saved and activated' : 'Theme saved');
 }
 $('#theme-save').addEventListener('click', () => saveEditing(false).catch(fail));
 $('#theme-save-apply').addEventListener('click', () => saveEditing(true).catch(fail));
-$('#theme-cancel').addEventListener('click', () => { if (!dirty || confirm('¿Descartar los cambios?')) closeEditor(); });
+$('#theme-cancel').addEventListener('click', () => { if (!dirty || confirm('Discard changes?')) closeEditor(); });
 
 // ------------------------------------------------------------------ AJUSTES
 const settingsForm = $('#settings-form');
@@ -573,7 +581,11 @@ function syncThemeMode() {
 function populateSettings() {
   const s = state.settings;
   for (const name of ['themeLightId', 'themeDarkId']) {
-    settingsForm.elements[name].replaceChildren(...allThemes(state.customThemes).map((t) => new Option(t.name, t.id)));
+    settingsForm.elements[name].replaceChildren(...groupedThemes(state.customThemes).map((group) => {
+      const options = el('optgroup'); options.label = group.label;
+      options.append(...group.themes.map((t) => new Option(t.name, t.id)));
+      return options;
+    }));
   }
   for (const c of settingsForm.elements) {
     if (!c.name) continue;
@@ -599,10 +611,10 @@ function renderHeaderLinks(links) {
   const host = $('#header-links');
   host.replaceChildren(...links.map((l, i) => {
     const row = el('div', 'hlink-row');
-    const title = Object.assign(el('input'), { value: l.title, placeholder: 'Título', maxLength: 40 });
+    const title = Object.assign(el('input'), { value: l.title, placeholder: 'Title', maxLength: 40 });
     const url = Object.assign(el('input'), { value: l.url, placeholder: 'https://…', spellcheck: false });
     const color = Object.assign(el('input'), { type: 'color', value: normHex(l.color, '#6c8cff') });
-    const del = Object.assign(el('button', 'btn small', '✕'), { type: 'button', title: 'Quitar' });
+    const del = Object.assign(el('button', 'btn small', '✕'), { type: 'button', title: 'Remove' });
     row.append(title, url, color, del);
     row.addEventListener('input', () => queueSave({ headerLinks: collectLinks() }));
     del.addEventListener('click', () => { row.remove(); queueSave({ headerLinks: collectLinks() }); });
@@ -626,8 +638,8 @@ $('#btn-add-hlink').addEventListener('click', () => {
 $('#btn-export').addEventListener('click', async () => {
   try {
     const data = await exportData({ content: $('#exp-content').checked, settings: $('#exp-settings').checked, themes: $('#exp-themes').checked });
-    if (!data.sections && !data.settings && !data.themes) return toast('Selecciona qué quieres exportar.');
-    download(`startboard-${stamp()}.json`, JSON.stringify(data, null, 2));
+    if (!data.sections && !data.settings && !data.themes) return toast('Select what you want to export.');
+    download(`tabra-${stamp()}.json`, JSON.stringify(data, null, 2));
   } catch (err) { fail(err); }
 });
 
@@ -636,9 +648,9 @@ function showPending(v, source) {
   pending = v;
   const s = v.summary;
   const parts = [];
-  if (s.sections) parts.push(`${s.pages ? s.pages + ' páginas, ' : ''}${s.sections} secciones y ${s.items} enlaces`);
-  if (s.themes) parts.push(`${s.themes} tema(s)`);
-  if (s.settings) parts.push('ajustes');
+  if (s.sections) parts.push(`${s.pages ? s.pages + ' pages, ' : ''}${s.sections} sections and ${s.items} links`);
+  if (s.themes) parts.push(`${s.themes} theme(s)`);
+  if (s.settings) parts.push('settings');
   $('#import-summary').textContent = `${source}: ${parts.join(', ')}`;
   $('#import-warnings').replaceChildren(...v.warnings.map((w) => el('li', null, w)));
   $('#import-preview').hidden = false;
@@ -664,10 +676,10 @@ $('#btn-import-cancel').addEventListener('click', clearPending);
 $('#btn-import').addEventListener('click', async () => {
   if (!pending) return;
   const mode = $('input[name="import-mode"]:checked').value;
-  if (mode === 'replace' && !confirm('Se sustituirá el contenido actual por el del archivo. Se creará antes una copia de seguridad. ¿Continuar?')) return;
+  if (mode === 'replace' && !confirm('The current content will be replaced by the file contents. A backup will be created first. Continue?')) return;
   try {
     await importData(pending.clean, { mode, pageTitle: pending.pageTitle });
-    toast('Importación completada');
+    toast('Import complete');
     clearPending();
   } catch (err) { fail(err); }
 });
@@ -675,23 +687,23 @@ $('#btn-import').addEventListener('click', async () => {
 // ------------------------------------------------------------------ DATOS: copias y reinicio
 function renderBackups() {
   const host = $('#backup-list');
-  if (!backups.length) return host.replaceChildren(el('p', 'hint', 'Todavía no hay copias.'));
+  if (!backups.length) return host.replaceChildren(el('p', 'hint', 'There are no backups yet.'));
   host.replaceChildren(...backups.map((b) => {
     const row = el('div', 'backup-row');
     const info = el('div', 'grow');
-    info.append(el('strong', null, b.label), el('small', null, `${new Date(b.createdAt).toLocaleString()} · ${b.sections} secciones, ${b.items} enlaces, ${b.themes} temas`));
+    info.append(el('strong', null, b.label), el('small', null, `${new Date(b.createdAt).toLocaleString()} · ${b.sections} sections, ${b.items} links, ${b.themes} themes`));
     const act = (label, fn, cls = '') => { const x = el('button', `btn small ${cls}`, label); x.type = 'button'; x.addEventListener('click', () => Promise.resolve(fn()).catch(fail)); return x; };
     row.append(info,
-      act('Restaurar', async () => { if (confirm('¿Restaurar esta copia? El estado actual se guardará antes como otra copia.')) { await restoreBackup(b.id); toast('Copia restaurada'); } }),
-      act('Descargar', async () => { const full = await db.backups.get(b.id); download(`startboard-copia-${stamp()}.json`, JSON.stringify(full.data, null, 2)); }),
+      act('Restore', async () => { if (confirm('Restore this backup? The current state will be saved as another backup first.')) { await restoreBackup(b.id); toast('Backup restored'); } }),
+      act('Download', async () => { const full = await db.backups.get(b.id); download(`tabra-backup-${stamp()}.json`, JSON.stringify(full.data, null, 2)); }),
       act('✕', () => db.backups.delete(b.id), 'danger'));
     return row;
   }));
 }
-$('#btn-backup-now').addEventListener('click', () => snapshot('Copia manual').then(() => toast('Copia creada')).catch(fail));
+$('#btn-backup-now').addEventListener('click', () => snapshot('Manual backup').then(() => toast('Backup created')).catch(fail));
 $('#btn-reset').addEventListener('click', async () => {
-  if (!confirm('Se borrarán secciones, enlaces, temas y ajustes. ¿Seguro?')) return;
-  try { await snapshot('Antes de restablecer'); await resetAll(); toast('Restablecido'); } catch (err) { fail(err); }
+  if (!confirm('Sections, links, themes, and settings will be deleted. Are you sure?')) return;
+  try { await snapshot('Before reset'); await resetAll(); toast('Reset complete'); } catch (err) { fail(err); }
 });
 
 // ------------------------------------------------------------------ arranque

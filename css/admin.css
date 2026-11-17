@@ -59,7 +59,7 @@ label.check { flex-direction: row; align-items: flex-start; gap: 8px; font-weigh
 code { background: var(--a-bg); padding: 1px 5px; border-radius: 4px; }
 
 .dash-scope { padding: 22px; border-radius: 14px; border: 1px solid var(--a-border); overflow: hidden; min-height: 400px; }
-.dash-scope .dash-wrap { max-width: 1500px; }
+.dash-scope .dash-wrap { max-width: max(0px, calc(var(--max-w, 1500px) - 48px)); margin-inline: auto; }
 
 /* tarjetas y formularios */
 .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 16px; align-items: start; }

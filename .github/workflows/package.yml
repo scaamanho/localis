@@ -1,0 +1,48 @@
+name: Package extension
+
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Create extension ZIP
+        id: zip
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="$(node -p "require('./manifest.json').version")"
+          archive="dist/tabra-v${version}.zip"
+          mkdir -p dist
+          zip -q -r "$archive" \
+            manifest.json \
+            background.js \
+            admin.html \
+            newtab.html \
+            css/base.css css/admin.css css/newtab.css \
+            js \
+            lib \
+            icons
+
+          if unzip -Z1 "$archive" | grep -Fxq "index.html"; then
+            echo "::error::The extension ZIP must not contain index.html"
+            exit 1
+          fi
+
+          echo "archive=$archive" >> "$GITHUB_OUTPUT"
+
+      - name: Upload extension ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: tabra-extension
+          path: ${{ steps.zip.outputs.archive }}
+          if-no-files-found: error
+          retention-days: 30

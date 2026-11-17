@@ -81,17 +81,17 @@ function cleanSettings(raw) {
 export function validateImport(obj) {
   const warnings = [];
   if (!obj || typeof obj !== 'object' || obj.format !== FORMAT) {
-    return { ok: false, error: 'El archivo no es una exportación de Startboard.' };
+    return { ok: false, error: 'The file is not a Tabra export.' };
   }
   if (typeof obj.version !== 'number' || obj.version < 1 || obj.version > VERSION) {
-    return { ok: false, error: 'El archivo es de una versión más reciente de Startboard.' };
+    return { ok: false, error: 'The file is from a newer version of Tabra.' };
   }
   const clean = {};
 
   if (Array.isArray(obj.sections)) {
     const pageIds = new Set();
     clean.pages = (Array.isArray(obj.pages) ? obj.pages : []).filter((p) => p && typeof p === 'object' && p.id != null)
-      .map((p, i) => { pageIds.add(p.id); return { id: p.id, title: str(p.title, 60, 'Página'), icon: str(p.icon, 8), order: Number.isFinite(p.order) ? p.order : i }; })
+      .map((p, i) => { pageIds.add(p.id); return { id: p.id, title: str(p.title, 60, 'Page'), icon: str(p.icon, 8), order: Number.isFinite(p.order) ? p.order : i }; })
       .sort((a, b) => a.order - b.order);
     const ids = new Set();
     clean.sections = obj.sections.filter((s) => s && typeof s === 'object' && s.id != null).map((s, i) => {
@@ -99,7 +99,7 @@ export function validateImport(obj) {
       return {
         id: s.id,
         pageId: pageIds.has(s.pageId) ? s.pageId : null,
-        title: str(s.title, 120, 'Sección'),
+        title: str(s.title, 120, 'Section'),
         icon: str(s.icon, 2_000_000),
         color: normHex(s.color, SECTION_DEFAULTS.color),
         span: [1, 2, 3].includes(Number(s.span)) ? Number(s.span) : 1,
@@ -126,16 +126,16 @@ export function validateImport(obj) {
         order: Number.isFinite(it.order) ? it.order : i,
       }];
     });
-    if (dropped) warnings.push(`${dropped} enlace(s) descartados por URL no válida o sección inexistente.`);
+    if (dropped) warnings.push(`${dropped} link(s) discarded due to an invalid URL or missing section.`);
   }
 
   if (Array.isArray(obj.themes)) {
     clean.themes = obj.themes.map(sanitizeTheme).filter(Boolean);
-    if (clean.themes.some((t) => t.customCss)) warnings.push('Algún tema incluye CSS personalizado.');
+    if (clean.themes.some((t) => t.customCss)) warnings.push('Some themes include custom CSS.');
   }
   if (obj.settings) clean.settings = cleanSettings(obj.settings);
   if (!clean.sections && !clean.themes && !clean.settings) {
-    return { ok: false, error: 'El archivo no contiene datos importables.' };
+    return { ok: false, error: 'The file contains no importable data.' };
   }
   return {
     ok: true, clean, warnings,
@@ -148,7 +148,7 @@ export function validateImport(obj) {
 
 export function parseImportText(text) {
   let obj;
-  try { obj = JSON.parse(text); } catch { return { ok: false, error: 'El archivo no es JSON válido.' }; }
+  try { obj = JSON.parse(text); } catch { return { ok: false, error: 'The file is not valid JSON.' }; }
   return validateImport(obj);
 }
 
@@ -173,7 +173,7 @@ export function parseBookmarksHtml(html) {
         if (sub) walk(sub, title);
       } else if (a) {
         const url = normalizeUrl(a.getAttribute('href'));
-        if (url) folderFor(name || 'Marcadores').items.push({ title: a.textContent.trim() || url, url });
+        if (url) folderFor(name || 'Bookmarks').items.push({ title: a.textContent.trim() || url, url });
       }
     }
   };
@@ -188,8 +188,8 @@ export function parseBookmarksHtml(html) {
   });
   return {
     ok: sections.length > 0,
-    error: sections.length ? undefined : 'No se encontraron marcadores en el archivo.',
-    clean: { sections, items }, warnings: [], pageTitle: 'Marcadores',
+    error: sections.length ? undefined : 'No bookmarks were found in the file.',
+    clean: { sections, items }, warnings: [], pageTitle: 'Bookmarks',
     summary: { sections: sections.length, items: items.length, themes: 0, settings: false },
   };
 }
@@ -200,7 +200,7 @@ export function parseBookmarksHtml(html) {
  * Las secciones sin página (archivos v1, marcadores) van a una página nueva: `pageTitle` al combinar, «Principal» al reemplazar.
  */
 export async function importData(clean, { mode = 'merge', backup = true, pageTitle } = {}) {
-  if (backup) await snapshot(mode === 'replace' ? 'Antes de reemplazar' : 'Antes de importar');
+  if (backup) await snapshot(mode === 'replace' ? 'Before replacing' : 'Before importing');
   await db.transaction('rw', db.sections, db.items, db.themes, db.settings, db.pages, async () => {
     let firstPage = null;
     if (clean.sections) {
@@ -216,7 +216,7 @@ export async function importData(clean, { mode = 'merge', backup = true, pageTit
       }
       let orphan = null;
       const orphanPage = async () => (orphan ??= await db.pages.add({
-        title: mode === 'replace' ? 'Principal' : (pageTitle || 'Importado'), icon: '', order: pbase + pageMap.size,
+        title: mode === 'replace' ? 'Home' : (pageTitle || 'Imported'), icon: '', order: pbase + pageMap.size,
       }));
 
       const lastS = mode === 'merge' ? await db.sections.orderBy('order').last() : null;
@@ -245,7 +245,7 @@ export async function importData(clean, { mode = 'merge', backup = true, pageTit
 }
 
 // ---------------------------------------------------------------- copias de seguridad
-export async function snapshot(label = 'Copia manual') {
+export async function snapshot(label = 'Manual backup') {
   const data = await exportData();
   await db.backups.add({ createdAt: Date.now(), label, data });
   const count = await db.backups.count();
@@ -257,7 +257,7 @@ export async function snapshot(label = 'Copia manual') {
 
 export async function restoreBackup(id) {
   const b = await db.backups.get(id);
-  if (!b) throw new Error('Copia no encontrada');
+  if (!b) throw new Error('Backup not found');
   const v = validateImport(b.data);
   if (!v.ok) throw new Error(v.error);
   await importData(v.clean, { mode: 'replace' }); // crea a su vez una copia "antes de reemplazar"

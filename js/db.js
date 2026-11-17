@@ -16,10 +16,19 @@ db.version(2).stores({
   pages: '++id, order',            // tableros: cada uno agrupa varias secciones
   sections: '++id, order, pageId',
 }).upgrade(async (tx) => {
-  const pid = await tx.table('pages').add({ title: 'Principal', icon: '', order: 0 });
+  const pid = await tx.table('pages').add({ title: 'Home', icon: '', order: 0 });
   await tx.table('sections').toCollection().modify({ pageId: pid });
   const st = await tx.table('settings').get('main');
   if (st) await tx.table('settings').put({ ...st, activePageId: pid });
+});
+
+db.version(3).stores({}).upgrade(async (tx) => {
+  const settings = await tx.table('settings').get('main');
+  if (!settings) return;
+  const patch = {};
+  if (settings.title === 'Startboard') patch.title = 'Tabra';
+  if (settings.subtitle === 'Mi página de inicio') patch.subtitle = 'My start page';
+  if (Object.keys(patch).length) await tx.table('settings').update('main', patch);
 });
 
 export const DEFAULT_SETTINGS = {
@@ -28,9 +37,9 @@ export const DEFAULT_SETTINGS = {
   themeMode: 'fixed',      // fixed | system
   themeLightId: 'paper',
   themeDarkId: 'midnight',
-  title: 'Startboard',
-  subtitle: 'Mi página de inicio',
-  themeId: 'midnight',
+  title: 'Tabra',
+  subtitle: 'My start page',
+  themeId: 'glass',
   layout: 'auto',          // auto | horizontal | vertical
   itemSize: 'medium',      // small | medium | large
   openIn: 'same',          // same | new
@@ -50,37 +59,37 @@ export const DEFAULT_SETTINGS = {
   customCss: '',
 };
 
-export const SECTION_DEFAULTS = { title: 'Nueva sección', icon: '', color: '#6c8cff', span: 1, layout: 'grid', collapsed: false };
+export const SECTION_DEFAULTS = { title: 'New section', icon: '', color: '#4f8cff', span: 1, layout: 'grid', collapsed: false };
 export const ITEM_DEFAULTS = { title: '', url: '', description: '', iconType: 'favicon', icon: '', tags: '', target: 'default' };
 
 // ---------------------------------------------------------------- datos de ejemplo (primer arranque)
 const SEED = [
-  { title: 'Desarrollo', icon: '💻', color: '#7c5cff', span: 2, items: [
-    ['GitHub', 'https://github.com', 'Repositorios'],
-    ['MDN', 'https://developer.mozilla.org', 'Documentación web'],
+  { title: 'Development', icon: '💻', color: '#7c5cff', span: 2, items: [
+    ['GitHub', 'https://github.com', 'Repositories'],
+    ['MDN', 'https://developer.mozilla.org', 'Web documentation'],
     ['Stack Overflow', 'https://stackoverflow.com'],
     ['npm', 'https://www.npmjs.com'],
-    ['Can I use', 'https://caniuse.com', 'Compatibilidad de navegadores'],
+    ['Can I use', 'https://caniuse.com', 'Browser compatibility'],
     ['DevDocs', 'https://devdocs.io'],
-    ['Dexie', 'https://dexie.org', 'Wrapper de IndexedDB'],
+    ['Dexie', 'https://dexie.org', 'IndexedDB wrapper'],
     ['Regex101', 'https://regex101.com'],
     ['CodePen', 'https://codepen.io'],
     ['JSON Crack', 'https://jsoncrack.com'],
   ] },
-  { title: 'Diseño', icon: '🎨', color: '#ff6fa5', items: [
+  { title: 'Design', icon: '🎨', color: '#ff6fa5', items: [
     ['Figma', 'https://www.figma.com'],
-    ['Coolors', 'https://coolors.co', 'Paletas'],
+    ['Coolors', 'https://coolors.co', 'Color palettes'],
     ['Excalidraw', 'https://excalidraw.com'],
     ['Unsplash', 'https://unsplash.com'],
   ] },
-  { title: 'Utilidades', icon: '🧰', color: '#2fd6a3', layout: 'list', items: [
-    ['Wikipedia', 'https://es.wikipedia.org', 'Enciclopedia'],
-    ['Traductor', 'https://translate.google.com', 'Google Translate'],
-    ['Mapas', 'https://maps.google.com'],
-    ['Correo', 'https://mail.google.com'],
-    ['Calendario', 'https://calendar.google.com'],
+  { title: 'Utilities', icon: '🧰', color: '#2fd6a3', layout: 'list', items: [
+    ['Wikipedia', 'https://en.wikipedia.org', 'Encyclopedia'],
+    ['Translate', 'https://translate.google.com', 'Google Translate'],
+    ['Maps', 'https://maps.google.com'],
+    ['Mail', 'https://mail.google.com'],
+    ['Calendar', 'https://calendar.google.com'],
   ] },
-  { title: 'Lectura', icon: '📰', color: '#ffb020', layout: 'list', items: [
+  { title: 'Reading', icon: '📰', color: '#ffb020', layout: 'list', items: [
     ['Hacker News', 'https://news.ycombinator.com'],
     ['Lobsters', 'https://lobste.rs'],
     ['Smashing Magazine', 'https://www.smashingmagazine.com'],
@@ -88,7 +97,7 @@ const SEED = [
 ];
 
 async function seed(d) {
-  const pageId = await d.table('pages').add({ title: 'Principal', icon: '', order: 0 });
+  const pageId = await d.table('pages').add({ title: 'Home', icon: '', order: 0 });
   await d.table('settings').put({ ...DEFAULT_SETTINGS, activePageId: pageId });
   let order = 0;
   for (const s of SEED) {
@@ -235,7 +244,7 @@ export const getPages = () => db.pages.orderBy('order').toArray();
 
 export async function addPage(data = {}) {
   const last = await db.pages.orderBy('order').last();
-  return db.pages.add({ title: 'Nueva página', icon: '', ...data, order: (last ? last.order : -1) + 1 });
+  return db.pages.add({ title: 'New page', icon: '', ...data, order: (last ? last.order : -1) + 1 });
 }
 export const updatePage = (id, patch) => db.pages.update(id, patch);
 
@@ -251,7 +260,7 @@ export async function movePage(id, dir) {
 /** Elimina la página con sus secciones y enlaces. Devuelve una función que lo deshace. */
 export async function deletePage(id) {
   const restore = await db.transaction('rw', db.pages, db.sections, db.items, async () => {
-    if ((await db.pages.count()) < 2) throw new Error('Debe quedar al menos una página.');
+    if ((await db.pages.count()) < 2) throw new Error('At least one page must remain.');
     const page = await db.pages.get(id);
     const sections = await db.sections.where('pageId').equals(id).toArray();
     const items = await db.items.where('sectionId').anyOf(sections.map((s) => s.id)).toArray();

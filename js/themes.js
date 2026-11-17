@@ -27,17 +27,17 @@ export const THEME_DEFAULTS = {
 };
 
 export const FONT_PRESETS = [
-  ['Sistema', 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif'],
-  ['Redondeada', 'ui-rounded, "Nunito", "Varela Round", system-ui, sans-serif'],
-  ['Monoespaciada', 'ui-monospace, "Cascadia Code", "Fira Code", Consolas, monospace'],
+  ['System', 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif'],
+  ['Rounded', 'ui-rounded, "Nunito", "Varela Round", system-ui, sans-serif'],
+  ['Monospace', 'ui-monospace, "Cascadia Code", "Fira Code", Consolas, monospace'],
   ['Serif', 'Georgia, "Times New Roman", serif'],
-  ['Humanista', 'Optima, Candara, "Segoe UI", sans-serif'],
+  ['Humanist', 'Optima, Candara, "Segoe UI", sans-serif'],
 ];
 
 export const BUILTIN_THEMES = [
   { id: 'midnight', name: 'Midnight' },
   {
-    id: 'neon', name: 'Neón',
+    id: 'neon', name: 'Neon',
     bg: '#0a0a0c', surface: '#15161a', item: '#0e0f12', itemHover: '#1d1f26', text: '#f2f2f2', muted: '#9a9aa5',
     accent: '#c35bff', border: '#26272e', radius: 0, gap: 22, shadow: 55, secStyle: 'solid',
     font: FONT_PRESETS[2][1],
@@ -58,12 +58,12 @@ export const BUILTIN_THEMES = [
     accent: '#cba6f7', border: '#45475a', radius: 14, secStyle: 'minimal',
   },
   {
-    id: 'paper', name: 'Paper (claro)',
+    id: 'paper', name: 'Paper (light)',
     bg: '#f3f4f7', surface: '#ffffff', item: '#f0f2f6', itemHover: '#e3e8f2', text: '#1f2430', muted: '#6b7385',
     accent: '#3b6cff', border: '#e0e4ec', radius: 12, shadow: 10,
   },
   {
-    id: 'solarized', name: 'Solarized claro',
+    id: 'solarized', name: 'Solarized Light',
     bg: '#fdf6e3', surface: '#eee8d5', item: '#fdf6e3', itemHover: '#f6efd9', text: '#586e75', muted: '#93a1a1',
     accent: '#268bd2', border: '#d9d2bc', radius: 6, shadow: 8, secStyle: 'outline',
     font: FONT_PRESETS[3][1],
@@ -75,18 +75,92 @@ export const BUILTIN_THEMES = [
     font: FONT_PRESETS[2][1],
   },
   {
-    id: 'glass', name: 'Cristal',
-    bg: '#1b2a4e', bgImage: 'linear-gradient(135deg, #1d2b64 0%, #6b3fa0 55%, #f8a5c2 100%)',
+    id: 'glass', name: 'Glass',
+    bg: '#1b2a4e', bgImage: 'linear-gradient(135deg, #102a56 0%, #145da0 55%, #087f8c 100%)',
     surface: '#ffffff', surfaceOpacity: 14, surfaceBlur: 16,
     item: '#ffffff', itemOpacity: 12, itemHover: '#ffffff',
     text: '#ffffff', muted: '#d6d9ee', accent: '#ffd36b', border: '#ffffff', radius: 16, shadow: 25, secStyle: 'minimal',
   },
+  {
+    id: 'arctic', name: 'Arctic',
+    bg: '#eef5f7', surface: '#ffffff', item: '#e5f0f3', itemHover: '#d1e5eb', text: '#18313b', muted: '#4d6972',
+    accent: '#087f8c', border: '#c9dde3', radius: 10, shadow: 10,
+  },
+  {
+    id: 'botanical', name: 'Botanical',
+    bg: '#edf4eb', surface: '#ffffff', item: '#e6f0e2', itemHover: '#d4e6cc', text: '#203b2a', muted: '#536d59',
+    accent: '#287744', border: '#cddfc9', radius: 8, shadow: 10,
+  },
+  {
+    id: 'porcelain', name: 'Porcelain',
+    bg: '#f5f4f2', surface: '#ffffff', item: '#f0efed', itemHover: '#e5e3e0', text: '#2b3034', muted: '#646b70',
+    accent: '#b33d48', border: '#dededb', radius: 6, shadow: 8, secStyle: 'outline',
+    font: FONT_PRESETS[4][1],
+  },
+  {
+    id: 'citrus', name: 'Citrus',
+    bg: '#f2f7e9', surface: '#ffffff', item: '#eaf2da', itemHover: '#dbeabc', text: '#29391e', muted: '#5d6e4b',
+    accent: '#447a24', border: '#d1dfc2', radius: 12, shadow: 10,
+  },
+  {
+    id: 'rosewater', name: 'Rosewater',
+    bg: '#fff1ef', surface: '#fffaf9', item: '#fbe5e2', itemHover: '#f5d6d5', text: '#392a2d', muted: '#765f62',
+    accent: '#bf5064', border: '#edd2d3', radius: 12, shadow: 10,
+  },
+  {
+    id: 'graphite', name: 'Graphite',
+    bg: '#17191b', surface: '#232629', item: '#303438', itemHover: '#3d4246', text: '#f1f3f2', muted: '#b0b9b6',
+    accent: '#54c9a6', border: '#404846', radius: 6, shadow: 25,
+  },
+  {
+    id: 'forest', name: 'Forest',
+    bg: '#14251e', surface: '#1d3529', item: '#284636', itemHover: '#355a45', text: '#eff6eb', muted: '#b2c9b3',
+    accent: '#b6db77', border: '#3b5a46', radius: 10, shadow: 20,
+  },
+  {
+    id: 'ember', name: 'Ember',
+    bg: '#261b1c', surface: '#382729', item: '#4a3231', itemHover: '#60413d', text: '#fff0e8', muted: '#d4b8ac',
+    accent: '#ffac79', border: '#654643', radius: 8, shadow: 25,
+  },
+  {
+    id: 'aero-ocean', name: 'Ocean',
+    bg: '#102d48', bgImage: 'linear-gradient(135deg, #102d48 0%, #064761 50%, #064a49 100%)',
+    surface: '#ffffff', surfaceOpacity: 14, surfaceBlur: 18,
+    item: '#ffffff', itemOpacity: 12, itemHover: '#ffffff',
+    text: '#ffffff', muted: '#d4eef0', accent: '#a5e8d8', border: '#ffffff', radius: 16, shadow: 25, secStyle: 'minimal',
+  },
+  {
+    id: 'aero-forest', name: 'Forest',
+    bg: '#173a31', bgImage: 'linear-gradient(135deg, #173a31 0%, #164c38 55%, #374a19 100%)',
+    surface: '#ffffff', surfaceOpacity: 14, surfaceBlur: 18,
+    item: '#ffffff', itemOpacity: 12, itemHover: '#ffffff',
+    text: '#ffffff', muted: '#e0edce', accent: '#e5eea1', border: '#ffffff', radius: 16, shadow: 25, secStyle: 'minimal',
+  },
+  {
+    id: 'aero-ember', name: 'Sunset',
+    bg: '#462c31', bgImage: 'linear-gradient(135deg, #462c31 0%, #623128 55%, #653e18 100%)',
+    surface: '#ffffff', surfaceOpacity: 14, surfaceBlur: 18,
+    item: '#ffffff', itemOpacity: 12, itemHover: '#ffffff',
+    text: '#ffffff', muted: '#f3ddd0', accent: '#ffe0a6', border: '#ffffff', radius: 16, shadow: 25, secStyle: 'minimal',
+  },
 ].map((t) => ({ ...THEME_DEFAULTS, ...t, builtin: true }));
 
-export const DEFAULT_THEME_ID = 'midnight';
+export const DEFAULT_THEME_ID = 'glass';
 
 export function allThemes(custom = []) {
   return [...BUILTIN_THEMES, ...custom.map((t) => ({ ...THEME_DEFAULTS, ...t }))];
+}
+export function groupedThemes(custom = []) {
+  const groups = [
+    { label: 'Dark', themes: [] },
+    { label: 'Light', themes: [] },
+    { label: 'Aero', themes: [] },
+  ];
+  for (const theme of allThemes(custom)) {
+    const index = theme.surfaceOpacity < 100 && theme.surfaceBlur > 0 ? 2 : isDark(theme.bg) ? 0 : 1;
+    groups[index].themes.push(theme);
+  }
+  return groups.filter((group) => group.themes.length);
 }
 export function findTheme(id, custom = []) {
   return allThemes(custom).find((t) => t.id === id) || BUILTIN_THEMES[0];
@@ -193,7 +267,7 @@ export function sanitizeTheme(raw) {
   t.headingFont = font(raw.headingFont, '');
   t.bgImage = typeof raw.bgImage === 'string' && raw.bgImage.length < 6_000_000 ? raw.bgImage : '';
   t.customCss = sanitizeCss(raw.customCss);
-  t.name = String(raw.name || 'Tema importado').slice(0, 60);
+  t.name = String(raw.name || 'Imported theme').slice(0, 60);
   t.id = typeof raw.id === 'string' && /^[\w-]{1,64}$/.test(raw.id) ? raw.id : newThemeId();
   return t;
 }

@@ -1,77 +1,77 @@
-# Startboard
+# Tabra
 
-Extensión de navegador (Manifest V3) que sustituye la página de nueva pestaña por una start page personalizable.
-Sin paso de build: HTML + ES modules + [Dexie](https://dexie.org) incluido en `lib/`.
+Browser extension (Manifest V3) that replaces the new tab page with a customizable start page.
+No build step: HTML + ES modules + [Dexie](https://dexie.org) included in `lib/`.
 
-## Instalar (Chrome / Edge / Brave)
+## Install (Chrome / Edge / Brave)
 
-1. Abre `chrome://extensions` y activa **Modo de desarrollador**.
-2. **Cargar descomprimida** → selecciona esta carpeta.
-3. Abre una pestaña nueva. Para editar: botón **⚙ Administrar** o el icono de la extensión.
+1. Open `chrome://extensions` and enable **Developer mode**.
+2. Select **Load unpacked** and choose this folder.
+3. Open a new tab. To edit, use **⚙ Manage** or the extension icon.
 
-## Qué incluye
+## GitHub Actions package
 
-| Pieza | Descripción |
+Every push and manual workflow run creates a versioned extension ZIP and uploads it as the `tabra-extension` artifact. Download it from the workflow run in **Actions**. The archive contains the extension files only; it excludes `index.html`, landing page styles, and screenshots.
+
+## Features
+
+| Component | Description |
 |---|---|
-| Start page (`newtab.html`) | **Varias páginas** con pestañas, secciones plegables, filtro instantáneo (busca en todas las páginas), atajos de búsqueda (`g texto`, `yt texto`…), selector rápido de tema / disposición / tamaño. |
-| Administración (`admin.html`) | Edición visual sobre el propio tablero: arrastrar secciones y enlaces (también entre secciones), diálogos de edición, iconos por favicon / emoji / URL / imagen subida. |
-| Motor de temas (`js/themes.js`) | Tema = tokens → variables CSS. 9 temas integrados, editor con vista previa en vivo, efecto cristal, fondo con imagen o degradado, CSS propio. Modo **seguir al sistema** (un tema para claro y otro para oscuro). |
-| Datos (`js/db.js`, `js/io.js`) | IndexedDB con Dexie. Exportar/importar JSON (combinar o reemplazar), importar marcadores HTML, copias automáticas antes de cada importación. |
+| Start page (`newtab.html`) | **Multiple pages** with tabs, collapsible sections, instant filtering across pages, search shortcuts (`g text`, `yt text`), and theme, layout, and size controls. |
+| Administration (`admin.html`) | Visual board editing, drag-and-drop sections and links (including between sections), editing dialogs, and favicon / emoji / URL / uploaded image icons. |
+| Theme engine (`js/themes.js`) | Theme tokens generate CSS variables. 20 built-in themes, live preview editor, glass effect, image or gradient backgrounds, and custom CSS. **Follow system** mode supports separate light and dark themes. |
+| Data (`js/db.js`, `js/io.js`) | IndexedDB with Dexie. JSON import/export (merge or replace), HTML bookmark import, and automatic backups before imports. |
 
-## Atajos (start page)
+## Shortcuts (start page)
 
-| Tecla | Acción |
+| Key | Action |
 |---|---|
-| Escribir cualquier letra o `/` | Enfoca el buscador |
-| `↓` / `↑` | Mueve la selección entre los resultados (cíclico) |
-| `Enter` / `Ctrl+Enter` | Abre el resaltado (o el atajo `g texto`) en la pestaña / en una nueva |
-| `Esc` | Limpia el filtro |
-| `Alt+1`…`Alt+9` | Cambia de página |
+| Type any letter or `/` | Focus search |
+| `↓` / `↑` | Cycle through results |
+| `Enter` / `Ctrl+Enter` | Open the selected result (or search shortcut such as `g text`) in the current / a new tab |
+| `Esc` | Clear the filter |
+| `Alt+1`…`Alt+9` | Switch pages |
 
-En el panel de administración, borrar un enlace, sección o página muestra un aviso con **Deshacer**.
+In the administration panel, deleting a link, section, or page shows an **Undo** action.
 
-## Estructura
+## Structure
 
 ```
 manifest.json      background.js
 newtab.html        admin.html
-css/  base.css (tablero + temas)  newtab.css  admin.css
+css/  base.css (board + themes)  newtab.css  admin.css
 js/   db.js  themes.js  io.js  render.js  newtab.js  admin.js  boot.js
 lib/  dexie.mjs (Dexie 4.x, Apache-2.0)
 ```
 
-`render.js` lo comparten la start page y el panel: lo que ves al editar es lo que verás en la nueva pestaña.
-`boot.js` aplica el último tema desde `localStorage` antes del primer pintado para evitar parpadeos.
+`render.js` is shared by the start page and administration panel.
+`boot.js` applies the last theme from `localStorage` before the first paint to prevent flickering.
 
-## Modelo de datos (Dexie, versión 2)
+## Data model (Dexie, version 3)
 
 ```
-settings : key                      -- un documento { key: 'main', title, themeId, themeMode, activePageId, … }
+settings : key                      -- one document { key: 'main', title, themeId, themeMode, activePageId, … }
 pages    : ++id, order              -- { title, icon, order }
 sections : ++id, order, pageId      -- { pageId, title, icon, color, span(1-3), layout(grid|list), collapsed, order }
 items    : ++id, sectionId, order   -- { title, url, description, iconType, icon, tags, target, sectionId, order }
-themes   : id                       -- solo temas personalizados
-backups  : ++id, createdAt          -- { label, data: <export completo> }
+themes   : id                       -- custom themes only
+backups  : ++id, createdAt          -- { label, data: <full export> }
 ```
 
-La v1→v2 se migra automáticamente: las secciones existentes pasan a una página «Principal». Para cambios futuros añade
-`db.version(3).stores({...}).upgrade(tx => …)` en `js/db.js`.
+Existing databases migrate automatically: v1 sections are assigned to a Home page, and v3 updates the original default title and subtitle to Tabra. Custom content is preserved.
 
-## Formato de exportación
+## Export format
 
 ```json
 { "format": "startboard", "version": 2, "exportedAt": "…",
   "settings": { … }, "pages": [ … ], "sections": [ … ], "items": [ … ], "themes": [ … ] }
 ```
 
-Cada bloque es opcional. Los archivos de la v1 (sin `pages`) se siguen leyendo: sus secciones van a una página nueva. Al importar, todo se valida y sanea (URLs `javascript:`/`data:` descartadas, colores y rangos
-acotados, `@import` eliminado del CSS) y los ids se reasignan.
+Each block is optional. Version 1 files without `pages` remain supported; their sections go to a new page. Imports are validated and sanitized (`javascript:`/`data:` URLs are discarded, colors and ranges are constrained, and CSS `@import` is removed), and IDs are reassigned. The `startboard` format identifier is retained for compatibility with existing exports.
 
-## Notas
+## Notes
 
-- **Favicons**: en Chrome/Edge se usa la API local `_favicon` (permiso `favicon`), sin enviar dominios a terceros.
-  En el panel puedes cambiar a DuckDuckGo, Google o solo letras.
-- **Enlaces `chrome://` y `file://`** se abren mediante `chrome.tabs` porque un `<a>` no puede navegar a ellos desde una página de extensión.
-- **Firefox**: el código es compatible en lo esencial, pero hay que adaptar el manifest (`background.scripts`,
-  `browser_specific_settings.gecko.id`) y no existe la API `_favicon` (se usa DuckDuckGo automáticamente).
-- Los datos viven en el perfil del navegador y **no se sincronizan** entre equipos: usa Exportar/Importar.
+- **Favicons**: Chrome/Edge use the local `_favicon` API (`favicon` permission) without sending domains to third parties. You can choose DuckDuckGo, Google, or letters only in settings.
+- **`chrome://` and `file://` links** open through `chrome.tabs` because extension page links cannot navigate to them directly.
+- **Firefox**: the code is mostly compatible, but the manifest needs adaptation (`background.scripts`, `browser_specific_settings.gecko.id`), and `_favicon` is unavailable (DuckDuckGo is used automatically).
+- Data lives in the browser profile and **does not sync** across devices. Use export/import to transfer it.

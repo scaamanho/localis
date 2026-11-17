@@ -78,7 +78,7 @@ function itemNode(it, settings, edit) {
   root.append(text);
   if (edit) {
     const acts = el('span', 'item-actions');
-    for (const [a, label, t] of [['dup-item', '⧉', 'Duplicar'], ['del-item', '✕', 'Eliminar']]) {
+    for (const [a, label, t] of [['dup-item', '⧉', 'Duplicate'], ['del-item', '✕', 'Delete']]) {
       const b = el('button', 'mini', label);
       b.type = 'button'; b.title = t; b.dataset.action = a; b.dataset.id = it.id;
       acts.append(b);
@@ -117,14 +117,14 @@ export function renderDashboard(root, { sections, items, settings }, { edit = fa
     if (edit) { head.draggable = true; head.dataset.kind = 'section'; head.dataset.id = sec.id; }
     const chev = el('button', 'chev', '▾');
     chev.type = 'button'; chev.dataset.action = 'toggle'; chev.dataset.id = sec.id;
-    chev.title = 'Plegar / desplegar'; chev.setAttribute('aria-expanded', String(!sec.collapsed));
+    chev.title = 'Collapse / expand'; chev.setAttribute('aria-expanded', String(!sec.collapsed));
     head.append(chev);
     if (sec.icon) head.append(makeIcon({ iconType: looksLikeImage(sec.icon) ? 'url' : 'emoji', icon: sec.icon, title: sec.title }));
     head.append(el('h2', 'sec-title', sec.title));
     if (edit) {
       head.append(el('span', 'sec-count', String(list.length)));
       const acts = el('span', 'sec-actions');
-      for (const [a, label, t] of [['move-left', '◀', 'Mover antes'], ['move-right', '▶', 'Mover después'], ['edit-section', '✎', 'Editar sección'], ['del-section', '🗑', 'Eliminar sección']]) {
+      for (const [a, label, t] of [['move-left', '◀', 'Move earlier'], ['move-right', '▶', 'Move later'], ['edit-section', '✎', 'Edit section'], ['del-section', '🗑', 'Delete section']]) {
         const b = el('button', 'mini', label);
         b.type = 'button'; b.title = t; b.dataset.action = a; b.dataset.id = sec.id;
         acts.append(b);
@@ -140,7 +140,7 @@ export function renderDashboard(root, { sections, items, settings }, { edit = fa
     if (edit) {
       const add = el('button', 'item item-add');
       add.type = 'button'; add.dataset.action = 'add-item'; add.dataset.id = sec.id;
-      add.append(el('span', 'ico ico-letter', '＋'), el('span', 'item-title', 'Añadir'));
+      add.append(el('span', 'ico ico-letter', '＋'), el('span', 'item-title', 'Add'));
       body.append(add);
     }
     node.append(body);
@@ -148,7 +148,7 @@ export function renderDashboard(root, { sections, items, settings }, { edit = fa
   }
 
   if (edit) {
-    const add = el('button', 'sec-add', '＋ Nueva sección');
+    const add = el('button', 'sec-add', '＋ New section');
     add.type = 'button'; add.dataset.action = 'add-section';
     root.append(add);
   }
