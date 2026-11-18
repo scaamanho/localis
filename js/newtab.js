@@ -100,7 +100,7 @@ function paint() {
   }));
 
   const sel = $('#theme-select');
-  sel.replaceChildren(...groupedThemes(customThemes).map((group) => {
+  sel.replaceChildren(...groupedThemes(customThemes, settings).map((group) => {
     const options = document.createElement('optgroup');
     options.label = group.label;
     options.append(...group.themes.map((t) => new Option(t.name, t.id, false, t.id === theme.id)));

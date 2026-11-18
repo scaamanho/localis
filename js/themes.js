@@ -75,11 +75,11 @@ export const BUILTIN_THEMES = [
     font: FONT_PRESETS[2][1],
   },
   {
-    id: 'glass', name: 'Glass',
-    bg: '#1b2a4e', bgImage: 'linear-gradient(135deg, #102a56 0%, #145da0 55%, #087f8c 100%)',
-    surface: '#ffffff', surfaceOpacity: 14, surfaceBlur: 16,
+    id: 'glass', name: 'Azure',
+    bg: '#1b2a4e', bgImage: 'linear-gradient(135deg, #102a56 0%, #145da0 55%, #087f8c 100%)', overlay: 10,
+    surface: '#0b2038', surfaceOpacity: 55, surfaceBlur: 16,
     item: '#ffffff', itemOpacity: 12, itemHover: '#ffffff',
-    text: '#ffffff', muted: '#d6d9ee', accent: '#ffd36b', border: '#ffffff', radius: 16, shadow: 25, secStyle: 'minimal',
+    text: '#ffffff', muted: '#eef2ff', accent: '#ffd36b', border: '#ffffff', radius: 16, shadow: 25, secStyle: 'minimal',
   },
   {
     id: 'arctic', name: 'Arctic',
@@ -124,10 +124,10 @@ export const BUILTIN_THEMES = [
   },
   {
     id: 'aero-ocean', name: 'Ocean',
-    bg: '#102d48', bgImage: 'linear-gradient(135deg, #102d48 0%, #064761 50%, #064a49 100%)',
-    surface: '#ffffff', surfaceOpacity: 14, surfaceBlur: 18,
+    bg: '#07304a', bgImage: 'linear-gradient(135deg, #07304a 0%, #006879 50%, #148b82 100%)', overlay: 18,
+    surface: '#071f2b', surfaceOpacity: 55, surfaceBlur: 18,
     item: '#ffffff', itemOpacity: 12, itemHover: '#ffffff',
-    text: '#ffffff', muted: '#d4eef0', accent: '#a5e8d8', border: '#ffffff', radius: 16, shadow: 25, secStyle: 'minimal',
+    text: '#ffffff', muted: '#e3f7f7', accent: '#a5e8d8', border: '#ffffff', radius: 16, shadow: 25, secStyle: 'minimal',
   },
   {
     id: 'aero-forest', name: 'Forest',
@@ -138,26 +138,61 @@ export const BUILTIN_THEMES = [
   },
   {
     id: 'aero-ember', name: 'Sunset',
-    bg: '#462c31', bgImage: 'linear-gradient(135deg, #462c31 0%, #623128 55%, #653e18 100%)',
-    surface: '#ffffff', surfaceOpacity: 14, surfaceBlur: 18,
+    bg: '#4a2336', bgImage: 'linear-gradient(135deg, #4a2336 0%, #873e54 55%, #bd702d 100%)', overlay: 24,
+    surface: '#2d151e', surfaceOpacity: 55, surfaceBlur: 18,
     item: '#ffffff', itemOpacity: 12, itemHover: '#ffffff',
-    text: '#ffffff', muted: '#f3ddd0', accent: '#ffe0a6', border: '#ffffff', radius: 16, shadow: 25, secStyle: 'minimal',
+    text: '#ffffff', muted: '#ffede2', accent: '#ffe0a6', border: '#ffffff', radius: 16, shadow: 25, secStyle: 'minimal',
+  },
+  {
+    id: 'arctic-glass', name: 'Frost',
+    bg: '#8dc8e8', bgImage: 'linear-gradient(135deg, #8dc8e8 0%, #d7ecfb 55%, #82cbd1 100%)',
+    surface: '#ffffff', surfaceOpacity: 30, surfaceBlur: 16,
+    item: '#ffffff', itemOpacity: 28, itemHover: '#ffffff',
+    text: '#102c35', muted: '#294854', accent: '#087f8c', border: '#82b9c9', radius: 16, shadow: 10, secStyle: 'minimal',
+  },
+  {
+    id: 'sage-glass', name: 'Sage',
+    bg: '#abd8b4', bgImage: 'linear-gradient(135deg, #abd8b4 0%, #e3f3cc 55%, #7dbda7 100%)',
+    surface: '#ffffff', surfaceOpacity: 30, surfaceBlur: 16,
+    item: '#ffffff', itemOpacity: 28, itemHover: '#ffffff',
+    text: '#203b2a', muted: '#294632', accent: '#287744', border: '#91bea2', radius: 16, shadow: 10, secStyle: 'minimal',
+  },
+  {
+    id: 'sand-glass', name: 'Sand',
+    bg: '#f0c995', bgImage: 'linear-gradient(135deg, #f0c995 0%, #fae7bc 55%, #e4ad85 100%)',
+    surface: '#ffffff', surfaceOpacity: 30, surfaceBlur: 16,
+    item: '#ffffff', itemOpacity: 28, itemHover: '#ffffff',
+    text: '#392a20', muted: '#563e30', accent: '#a45b1b', border: '#c99f76', radius: 16, shadow: 10, secStyle: 'minimal',
   },
 ].map((t) => ({ ...THEME_DEFAULTS, ...t, builtin: true }));
 
 export const DEFAULT_THEME_ID = 'glass';
 
+const CLASSIC_THEME_IDS = new Set([
+  'neon', 'dracula', 'mocha', 'cyber', 'arctic', 'porcelain', 'citrus',
+  'rosewater', 'graphite', 'ember', 'aero-forest',
+]);
+
 export function allThemes(custom = []) {
   return [...BUILTIN_THEMES, ...custom.map((t) => ({ ...THEME_DEFAULTS, ...t }))];
 }
-export function groupedThemes(custom = []) {
+export function groupedThemes(custom = [], settings = {}) {
   const groups = [
     { label: 'Dark', themes: [] },
     { label: 'Light', themes: [] },
-    { label: 'Aero', themes: [] },
+    { label: 'Glass · Dark', themes: [] },
+    { label: 'Glass · Light', themes: [] },
+    { label: 'Classics', themes: [] },
   ];
+  const selectedIds = new Set([settings.themeId, settings.themeLightId, settings.themeDarkId]);
   for (const theme of allThemes(custom)) {
-    const index = theme.surfaceOpacity < 100 && theme.surfaceBlur > 0 ? 2 : isDark(theme.bg) ? 0 : 1;
+    if (theme.builtin && CLASSIC_THEME_IDS.has(theme.id)) {
+      if (selectedIds.has(theme.id)) groups[4].themes.push(theme);
+      continue;
+    }
+    const dark = isDark(theme.bg);
+    const glass = theme.surfaceOpacity < 100 && theme.surfaceBlur > 0;
+    const index = glass ? (dark ? 2 : 3) : (dark ? 0 : 1);
     groups[index].themes.push(theme);
   }
   return groups.filter((group) => group.themes.length);

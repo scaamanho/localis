@@ -84,7 +84,7 @@ code { padding: 2px 5px; background: rgba(23, 43, 45, .07); border-radius: 3px; 
 .theme-shot figcaption { display: flex; justify-content: space-between; align-items: baseline; padding: 12px 14px; }
 .theme-shot figcaption span:first-child { font-family: var(--serif); font-size: 20px; }
 .theme-shot figcaption span:last-child { color: var(--muted); font-size: 11px; text-transform: uppercase; }
-.theme-shot-forest { margin-top: 30px; }
+.theme-shot-arctic { margin-top: 30px; }
 .theme-shot-midnight { margin-top: 60px; }
 .theme-note { margin: 28px 0 0; color: var(--muted); font-size: 13px; }
 .theme-note span { padding-right: 7px; color: var(--coral); }
@@ -142,7 +142,7 @@ code { padding: 2px 5px; background: rgba(23, 43, 45, .07); border-radius: 3px; 
   .section-heading-inline { display: block; }
   .section-heading-inline > p { margin-top: 18px; }
   .theme-gallery { grid-template-columns: 1fr 1fr; gap: 12px; }
-  .theme-shot-forest, .theme-shot-midnight { margin-top: 0; }
+  .theme-shot-arctic, .theme-shot-midnight { margin-top: 0; }
   .theme-shot-midnight { grid-column: 1 / -1; width: calc(50% - 6px); }
   .theme-shot img { aspect-ratio: 1.2 / 1; }
   .settings-layout, .install-layout { grid-template-columns: 1fr; gap: 38px; }

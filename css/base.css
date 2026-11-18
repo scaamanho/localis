@@ -48,7 +48,7 @@ body.scope::before { position: fixed; }
 }
 .sec-head {
   display: flex; align-items: center; gap: 8px;
-  padding: 9px 12px;
+  padding: 3px 12px;
   background: var(--sec-color); color: var(--sec-text);
   font-family: var(--font-heading);
   user-select: none;

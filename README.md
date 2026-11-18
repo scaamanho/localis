@@ -29,7 +29,7 @@ Download the **`localis-extension-v…zip`** asset from [GitHub Releases](https:
 |---|---|
 | Start page (`newtab.html`) | **Multiple pages** with an accent underline on the active tab, collapsible sections, instant filtering across pages, search shortcuts (`g text`, `yt text`), and theme, layout, and size controls. |
 | Administration (`admin.html`) | Visual board editing, drag-and-drop sections and links (including between sections), editing dialogs, and favicon / emoji / URL / uploaded image icons. |
-| Theme engine (`js/themes.js`) | Theme tokens generate CSS variables. 20 built-in themes, live preview editor, glass effect, image or gradient backgrounds, and custom CSS. **Follow system** mode supports separate light and dark themes. |
+| Theme engine (`js/themes.js`) | Theme tokens generate CSS variables. 12 curated themes (three each of dark, light, dark glass, and light glass), live preview editor, image or gradient backgrounds, and custom CSS. **Follow system** mode supports separate light and dark themes. Previously configured retired themes remain available in the Classics group while referenced by settings. |
 | Data (`js/db.js`, `js/io.js`) | IndexedDB with Dexie. JSON import/export (merge or replace), HTML bookmark import, and automatic backups before imports. |
 
 ## Shortcuts (start page)

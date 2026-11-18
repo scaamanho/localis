@@ -400,7 +400,7 @@ const themeList = $('#theme-list');
 
 function renderThemeList() {
   const activeId = activeTheme().id;
-  themeList.replaceChildren(...groupedThemes(state.customThemes).map((group) => {
+  themeList.replaceChildren(...groupedThemes(state.customThemes, state.settings).map((group) => {
     const section = el('section', 'theme-group');
     const grid = el('div', 'theme-grid');
     grid.replaceChildren(...group.themes.map((t) => {
@@ -634,7 +634,7 @@ function syncThemeMode() {
 function populateSettings() {
   const s = state.settings;
   for (const name of ['themeLightId', 'themeDarkId']) {
-    settingsForm.elements[name].replaceChildren(...groupedThemes(state.customThemes).map((group) => {
+    settingsForm.elements[name].replaceChildren(...groupedThemes(state.customThemes, s).map((group) => {
       const options = el('optgroup'); options.label = group.label;
       options.append(...group.themes.map((t) => new Option(t.name, t.id)));
       return options;
