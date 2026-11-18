@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Tabra",
+  "name": "Localis",
   "version": "1.1.0",
   "description": "Customizable start page with visual management, themes, and import/export. Data stored in IndexedDB (Dexie).",
   "icons": {
@@ -17,7 +17,7 @@
     "open_in_tab": true
   },
   "action": {
-    "default_title": "Manage Tabra"
+    "default_title": "Manage Localis"
   },
   "background": {
     "service_worker": "background.js"

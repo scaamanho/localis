@@ -31,13 +31,20 @@ db.version(3).stores({}).upgrade(async (tx) => {
   if (Object.keys(patch).length) await tx.table('settings').update('main', patch);
 });
 
+db.version(4).stores({}).upgrade(async (tx) => {
+  const settings = await tx.table('settings').get('main');
+  if (settings?.title === 'Tabra') {
+    await tx.table('settings').update('main', { title: DEFAULT_SETTINGS.title });
+  }
+});
+
 export const DEFAULT_SETTINGS = {
   key: 'main',
   activePageId: null,
   themeMode: 'fixed',      // fixed | system
   themeLightId: 'paper',
   themeDarkId: 'midnight',
-  title: 'Tabra',
+  title: 'Localis',
   subtitle: 'My start page',
   themeId: 'glass',
   layout: 'auto',          // auto | horizontal | vertical

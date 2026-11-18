@@ -81,10 +81,10 @@ function cleanSettings(raw) {
 export function validateImport(obj) {
   const warnings = [];
   if (!obj || typeof obj !== 'object' || obj.format !== FORMAT) {
-    return { ok: false, error: 'The file is not a Tabra export.' };
+    return { ok: false, error: 'The file is not a Localis export.' };
   }
   if (typeof obj.version !== 'number' || obj.version < 1 || obj.version > VERSION) {
-    return { ok: false, error: 'The file is from a newer version of Tabra.' };
+    return { ok: false, error: 'The file is from a newer version of Localis.' };
   }
   const clean = {};
 

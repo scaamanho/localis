@@ -1,4 +1,4 @@
-# Tabra
+# Localis
 
 Browser extension (Manifest V3) that replaces the new tab page with a customizable start page.
 No build step: HTML + ES modules + [Dexie](https://dexie.org) included in `lib/`.
@@ -16,12 +16,12 @@ No build step: HTML + ES modules + [Dexie](https://dexie.org) included in `lib/`
     | Vivaldi | `vivaldi://extensions` |
 
 3. Turn on **Developer mode** on that page.
-4. Select **Load unpacked** and choose the extracted Tabra folder.
-5. Open a new tab. To edit, use **⚙ Manage** or the extension icon.
+4. Select **Load unpacked** and choose the extracted Localis folder.
+5. Open a new tab. To edit, click the **⚙** icon (hover to see **Manage**) or use the extension icon.
 
 ## GitHub Actions package
 
-Download the extension ZIP asset from [GitHub Releases](https://github.com/scaamanho/tabra/releases), not GitHub's automatically generated “Source code” archive. Publishing a release attaches the extension-only ZIP. To add it to an existing release, run **Package extension** from Actions and enter its tag in `release_tag`. Each push and manual workflow run also creates a versioned `tabra-extension` artifact in Actions. The extension ZIP excludes `index.html`, landing page styles, and screenshots.
+Download the extension ZIP asset from [GitHub Releases](https://github.com/scaamanho/tabra/releases), not GitHub's automatically generated “Source code” archive. Publishing a release attaches the extension-only ZIP. To add it to an existing release, run **Package extension** from Actions and enter its tag in `release_tag`. Each push and manual workflow run also creates a versioned `localis-extension` artifact in Actions. The extension ZIP excludes `index.html`, landing page styles, and screenshots.
 
 ## Features
 
@@ -57,7 +57,7 @@ lib/  dexie.mjs (Dexie 4.x, Apache-2.0)
 `render.js` is shared by the start page and administration panel.
 `boot.js` applies the last theme from `localStorage` before the first paint to prevent flickering.
 
-## Data model (Dexie, version 3)
+## Data model (Dexie, version 4)
 
 ```
 settings : key                      -- one document { key: 'main', title, themeId, themeMode, activePageId, … }
@@ -68,7 +68,7 @@ themes   : id                       -- custom themes only
 backups  : ++id, createdAt          -- { label, data: <full export> }
 ```
 
-Existing databases migrate automatically: v1 sections are assigned to a Home page, and v3 updates the original default title and subtitle to Tabra. Custom content is preserved.
+Existing databases migrate automatically: v1 sections are assigned to a Home page, and v4 updates the previous default title to Localis. Custom titles and content are preserved.
 
 ## Export format
 

@@ -21,8 +21,6 @@ body.admin { margin: 0; display: grid; grid-template-columns: 220px 1fr; min-hei
 .side nav button:hover { background: var(--a-bg); color: var(--a-text); }
 .side nav button[aria-selected="true"] { background: var(--a-accent); color: var(--a-accent-text); font-weight: 600; }
 .side nav button:focus-visible, .btn:focus-visible { outline: 2px solid var(--a-accent); outline-offset: 2px; }
-.side-link { margin-top: auto; padding: 9px 12px; color: var(--a-muted); text-decoration: none; border-radius: 8px; }
-.side-link:hover { background: var(--a-bg); color: var(--a-text); }
 
 main { padding: 24px 28px 60px; min-width: 0; }
 .toolbar { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
@@ -41,6 +39,7 @@ h3 { margin: 0 0 8px; font-size: 14px; }
 .btn.small { padding: 4px 10px; font-size: 12.5px; }
 .btn.danger { color: var(--a-danger); border-color: var(--a-danger); }
 .btn.danger:hover { background: var(--a-danger); color: #fff; }
+.btn.side-link { margin-top: auto; background: var(--a-bg); text-align: center; }
 
 input, select, textarea {
   font: inherit; color: var(--a-text); background: var(--a-input); border: 1px solid var(--a-border);

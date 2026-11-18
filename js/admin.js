@@ -639,7 +639,7 @@ $('#btn-export').addEventListener('click', async () => {
   try {
     const data = await exportData({ content: $('#exp-content').checked, settings: $('#exp-settings').checked, themes: $('#exp-themes').checked });
     if (!data.sections && !data.settings && !data.themes) return toast('Select what you want to export.');
-    download(`tabra-${stamp()}.json`, JSON.stringify(data, null, 2));
+    download(`localis-${stamp()}.json`, JSON.stringify(data, null, 2));
   } catch (err) { fail(err); }
 });
 
@@ -695,7 +695,7 @@ function renderBackups() {
     const act = (label, fn, cls = '') => { const x = el('button', `btn small ${cls}`, label); x.type = 'button'; x.addEventListener('click', () => Promise.resolve(fn()).catch(fail)); return x; };
     row.append(info,
       act('Restore', async () => { if (confirm('Restore this backup? The current state will be saved as another backup first.')) { await restoreBackup(b.id); toast('Backup restored'); } }),
-      act('Download', async () => { const full = await db.backups.get(b.id); download(`tabra-backup-${stamp()}.json`, JSON.stringify(full.data, null, 2)); }),
+      act('Download', async () => { const full = await db.backups.get(b.id); download(`localis-backup-${stamp()}.json`, JSON.stringify(full.data, null, 2)); }),
       act('✕', () => db.backups.delete(b.id), 'danger'));
     return row;
   }));
