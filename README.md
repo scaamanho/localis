@@ -27,7 +27,7 @@ Download the extension ZIP asset from [GitHub Releases](https://github.com/scaam
 
 | Component | Description |
 |---|---|
-| Start page (`newtab.html`) | **Multiple pages** with tabs, collapsible sections, instant filtering across pages, search shortcuts (`g text`, `yt text`), and theme, layout, and size controls. |
+| Start page (`newtab.html`) | **Multiple pages** with an accent underline on the active tab, collapsible sections, instant filtering across pages, search shortcuts (`g text`, `yt text`), and theme, layout, and size controls. |
 | Administration (`admin.html`) | Visual board editing, drag-and-drop sections and links (including between sections), editing dialogs, and favicon / emoji / URL / uploaded image icons. |
 | Theme engine (`js/themes.js`) | Theme tokens generate CSS variables. 20 built-in themes, live preview editor, glass effect, image or gradient backgrounds, and custom CSS. **Follow system** mode supports separate light and dark themes. |
 | Data (`js/db.js`, `js/io.js`) | IndexedDB with Dexie. JSON import/export (merge or replace), HTML bookmark import, and automatic backups before imports. |
