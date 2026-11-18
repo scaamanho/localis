@@ -58,12 +58,12 @@ export const BUILTIN_THEMES = [
     accent: '#cba6f7', border: '#45475a', radius: 14, secStyle: 'minimal',
   },
   {
-    id: 'paper', name: 'Paper (light)',
+    id: 'paper', name: 'Paper',
     bg: '#f3f4f7', surface: '#ffffff', item: '#f0f2f6', itemHover: '#e3e8f2', text: '#1f2430', muted: '#626a7a',
     accent: '#3b6cff', border: '#e0e4ec', radius: 12, shadow: 10,
   },
   {
-    id: 'solarized', name: 'Solarized Light',
+    id: 'solarized', name: 'Solarized',
     bg: '#fdf6e3', surface: '#eee8d5', item: '#fdf6e3', itemHover: '#f6efd9', text: '#4f6269', muted: '#4f6269',
     accent: '#268bd2', border: '#d9d2bc', radius: 6, shadow: 8, secStyle: 'outline',
     font: FONT_PRESETS[3][1],
@@ -79,7 +79,7 @@ export const BUILTIN_THEMES = [
     bg: '#1b2a4e', bgImage: 'linear-gradient(135deg, #102a56 0%, #145da0 55%, #087f8c 100%)', overlay: 10,
     surface: '#0b2038', surfaceOpacity: 55, surfaceBlur: 16,
     item: '#ffffff', itemOpacity: 12, itemHover: '#ffffff',
-    text: '#ffffff', muted: '#eef2ff', accent: '#ffd36b', border: '#ffffff', radius: 16, shadow: 25, secStyle: 'minimal',
+    text: '#ffffff', muted: '#eef2ff', accent: '#ffd36b', border: '#ffffff', radius: 16, shadow: 25, secStyle: 'outline',
   },
   {
     id: 'arctic', name: 'Arctic',
