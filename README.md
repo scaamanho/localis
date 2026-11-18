@@ -27,7 +27,7 @@ Download the **`localis-extension-v…zip`** asset from [GitHub Releases](https:
 
 | Component | Description |
 |---|---|
-| Start page (`newtab.html`) | **Multiple pages** with an accent underline on the active tab, collapsible sections, instant filtering across pages, search shortcuts (`g text`, `yt text`), and theme, layout, and size controls. |
+| Start page (`newtab.html`) | **Multiple pages** with an accent underline on the active tab, collapsible sections, instant filtering across pages, customizable web search shortcuts (`g text`, `yt text`), and theme, layout, and size controls. |
 | Administration (`admin.html`) | Visual board editing, drag-and-drop sections and links (including between sections), editing dialogs, and favicon / emoji / URL / uploaded image icons. |
 | Theme engine (`js/themes.js`) | Theme tokens generate CSS variables. 12 curated themes (three each of dark, light, dark glass, and light glass), live preview editor, image or gradient backgrounds, and custom CSS. **Follow system** mode supports separate light and dark themes. Previously configured retired themes remain available in the Classics group while referenced by settings. |
 | Data (`js/db.js`, `js/io.js`) | IndexedDB with Dexie. JSON import/export (merge or replace), HTML bookmark import, and automatic backups before imports. |
@@ -41,6 +41,30 @@ Download the **`localis-extension-v…zip`** asset from [GitHub Releases](https:
 | `Enter` / `Ctrl+Enter` | Open the selected result (or search shortcut such as `g text`) in the current / a new tab |
 | `Esc` | Clear the filter |
 | `Alt+1`…`Alt+9` | Switch pages |
+
+## Search options
+
+The search box filters links as you type. Matching is case-insensitive and checks each link's **title, URL, description, and tags**. Tags are searchable even though they are not shown on the link. When you search and the board has multiple pages, results include links from **all pages**; otherwise, filtering stays on the current page. Sections with no matches are hidden while filtering.
+
+Press `Enter` to submit the search. A configured shortcut such as `g text` takes priority; otherwise, the selected matching link opens. Use `↑` and `↓` to change the selection. If there is no selected link, text that looks like a domain or URL (for example, `example.com/path`) opens directly; other text searches the web. `Ctrl+Enter` (or `Cmd+Enter` on macOS) opens the shortcut destination, selected link, direct URL, or web search in a new tab.
+
+Web searches use the **Default search engine** URL configured in **Manage → Search**. Put `%s` where the query should go; Localis URL-encodes the query before inserting it. The default is Google:
+
+```text
+https://www.google.com/search?q=%s
+```
+
+You can also configure **Shortcuts** in **Manage → Search**, one per line in the format `key URL-with-%s`. Type `key text` in the search box to send `text` to that service. Shortcut keys are case-insensitive, and the query is URL-encoded. The defaults are:
+
+| Shortcut | Destination |
+|---|---|
+| `g text` | Google |
+| `ddg text` | DuckDuckGo |
+| `yt text` | YouTube |
+| `mdn text` | MDN Web Docs |
+| `gh text` | GitHub search |
+
+For example, `yt ambient music` searches YouTube for “ambient music.” A shortcut only runs when its key matches a configured entry; otherwise the text follows the normal link-filtering and default-search behavior. The **Show search** option in Manage can hide the search box.
 
 In the administration panel, deleting a link, section, or page shows an **Undo** action. Use a link's **Move** control to choose a destination section and position without dragging; sections and pages also have move controls.
 
