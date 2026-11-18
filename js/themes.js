@@ -44,12 +44,12 @@ export const BUILTIN_THEMES = [
   },
   {
     id: 'nord', name: 'Nord',
-    bg: '#2e3440', surface: '#3b4252', item: '#434c5e', itemHover: '#4c566a', text: '#eceff4', muted: '#aeb6c6',
+    bg: '#2e3440', surface: '#3b4252', item: '#434c5e', itemHover: '#4c566a', text: '#eceff4', muted: '#b7c0d0',
     accent: '#88c0d0', border: '#4c566a', radius: 8, shadow: 20,
   },
   {
     id: 'dracula', name: 'Dracula',
-    bg: '#282a36', surface: '#303241', item: '#44475a', itemHover: '#515470', text: '#f8f8f2', muted: '#a4a9cf',
+    bg: '#282a36', surface: '#303241', item: '#44475a', itemHover: '#515470', text: '#f8f8f2', muted: '#b6bbdb',
     accent: '#bd93f9', border: '#44475a', radius: 10,
   },
   {
@@ -59,12 +59,12 @@ export const BUILTIN_THEMES = [
   },
   {
     id: 'paper', name: 'Paper (light)',
-    bg: '#f3f4f7', surface: '#ffffff', item: '#f0f2f6', itemHover: '#e3e8f2', text: '#1f2430', muted: '#6b7385',
+    bg: '#f3f4f7', surface: '#ffffff', item: '#f0f2f6', itemHover: '#e3e8f2', text: '#1f2430', muted: '#626a7a',
     accent: '#3b6cff', border: '#e0e4ec', radius: 12, shadow: 10,
   },
   {
     id: 'solarized', name: 'Solarized Light',
-    bg: '#fdf6e3', surface: '#eee8d5', item: '#fdf6e3', itemHover: '#f6efd9', text: '#586e75', muted: '#93a1a1',
+    bg: '#fdf6e3', surface: '#eee8d5', item: '#fdf6e3', itemHover: '#f6efd9', text: '#4f6269', muted: '#4f6269',
     accent: '#268bd2', border: '#d9d2bc', radius: 6, shadow: 8, secStyle: 'outline',
     font: FONT_PRESETS[3][1],
   },
@@ -181,7 +181,7 @@ export function luminance(hex) {
   return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 }
 export const isDark = (hex) => luminance(hex) < 0.35;
-export const contrastText = (hex) => (luminance(hex) > 0.4 ? '#111318' : '#ffffff');
+export const contrastText = (hex) => (luminance(hex) > 0.179 ? '#000000' : '#ffffff');
 
 const mix = (c, pct) => (pct >= 100 ? c : `color-mix(in srgb, ${c} ${pct}%, transparent)`);
 

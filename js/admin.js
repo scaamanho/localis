@@ -60,7 +60,7 @@ const pageSections = () => { const p = curPage(); return p ? state.sections.filt
 
 // ------------------------------------------------------------------ pestañas
 function showTab(name) {
-  for (const b of $$('#tabs button')) b.setAttribute('aria-selected', String(b.dataset.tab === name));
+  for (const b of $$('#tabs button')) b.setAttribute('aria-current', b.dataset.tab === name ? 'page' : 'false');
   for (const s of $$('.tab')) s.hidden = s.id !== `tab-${name}`;
   history.replaceState(null, '', `#${name}`);
   if (name === 'settings' && state) populateSettings();
@@ -71,9 +71,13 @@ $('#tabs').addEventListener('click', (e) => { const b = e.target.closest('button
 const dashEl = $('#dash');
 
 function paintDash() {
+  const focused = document.activeElement;
+  const action = dashEl.contains(focused) ? focused.dataset.action : null;
+  const id = action ? focused.dataset.id : null;
   applyTheme(activeTheme(), $('#dash-scope'));
   $('#dash-scope').style.setProperty('--max-w', state.settings.maxWidth + 'px');
   renderDashboard(dashEl, { ...state, sections: pageSections() }, { edit: true });
+  if (action && id) ($(`[data-action="${action}"][data-id="${id}"]`, dashEl) || $('#btn-add-section')).focus();
   renderPageBar();
 }
 
@@ -82,8 +86,7 @@ function renderPageBar() {
   $('#page-tabs').replaceChildren(...state.pages.map((p) => {
     const b = el('button', null, (p.icon ? p.icon + ' ' : '') + p.title);
     b.type = 'button';
-    b.setAttribute('role', 'tab');
-    b.setAttribute('aria-selected', String(p.id === cur?.id));
+    b.setAttribute('aria-current', p.id === cur?.id ? 'page' : 'false');
     b.addEventListener('click', () => saveSettings({ activePageId: p.id }));
     return b;
   }));
@@ -101,6 +104,7 @@ dashEl.addEventListener('click', async (e) => {
     switch (b.dataset.action) {
       case 'toggle': await updateSection(id, { collapsed: !state.sections.find((s) => s.id === id).collapsed }); break;
       case 'edit-item': openItemDialog(state.items.find((i) => i.id === id)); break;
+      case 'move-item': openMoveItemDialog(state.items.find((i) => i.id === id)); break;
       case 'add-item': openItemDialog(null, id); break;
       case 'dup-item': await duplicateItem(id); toast('Link duplicated'); break;
       case 'del-item': {
@@ -124,9 +128,6 @@ dashEl.addEventListener('click', async (e) => {
   } catch (err) { fail(err); }
 });
 
-dashEl.addEventListener('keydown', (e) => {
-  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('.item[data-action]')) { e.preventDefault(); e.target.click(); }
-});
 $('#btn-add-section').addEventListener('click', () => openSectionDialog(null));
 
 // ------------------------------------------------------------------ PÁGINAS
@@ -247,6 +248,58 @@ for (const dlg of $$('dialog')) {
   dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });
   $$('[data-close]', dlg).forEach((b) => b.addEventListener('click', () => dlg.close()));
 }
+
+const dlgMoveItem = $('#dlg-move-item');
+const formMoveItem = $('#form-move-item');
+let movingItemId = null;
+
+function updateMovePositions() {
+  const sectionId = Number(formMoveItem.elements.sectionId.value);
+  const items = state.items.filter((item) => item.sectionId === sectionId && item.id !== movingItemId)
+    .sort((a, b) => a.order - b.order);
+  formMoveItem.elements.beforeItemId.replaceChildren(
+    ...items.map((item) => new Option(`Before ${item.title}`, String(item.id))),
+    new Option('At the end', ''),
+  );
+  formMoveItem.elements.beforeItemId.value = '';
+}
+
+function openMoveItemDialog(item) {
+  if (!item) return fail(new Error('The link no longer exists.'));
+  movingItemId = item.id;
+  const pages = new Map(state.pages.map((page) => [page.id, page.title]));
+  $('#move-item-title').textContent = `Move ${item.title}`;
+  $('#move-item-error').hidden = true;
+  formMoveItem.elements.sectionId.replaceChildren(...state.sections.map((section) =>
+    new Option(`${pages.get(section.pageId) || 'Page'} · ${section.title}`, String(section.id))));
+  formMoveItem.elements.sectionId.value = String(item.sectionId);
+  updateMovePositions();
+  dlgMoveItem.showModal();
+  formMoveItem.elements.sectionId.focus();
+}
+
+formMoveItem.elements.sectionId.addEventListener('change', updateMovePositions);
+formMoveItem.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const sectionId = Number(formMoveItem.elements.sectionId.value);
+  const beforeValue = formMoveItem.elements.beforeItemId.value;
+  const beforeId = beforeValue ? Number(beforeValue) : null;
+  try {
+    if (!state.items.some((item) => item.id === movingItemId) || !state.sections.some((section) => section.id === sectionId) ||
+        (beforeId != null && !state.items.some((item) => item.id === beforeId && item.sectionId === sectionId))) {
+      throw new Error('The link or destination has changed. Close this dialog and try again.');
+    }
+    await moveItem(movingItemId, sectionId, beforeId);
+    dlgMoveItem.close();
+    ($(`[data-action="move-item"][data-id="${movingItemId}"]`, dashEl) || $('#btn-add-section')).focus();
+    toast('Link moved');
+  } catch (err) {
+    console.error(err);
+    const error = $('#move-item-error');
+    error.textContent = 'Error: ' + (err?.message || err);
+    error.hidden = false;
+  }
+});
 
 function updateItemIconUI() {
   const f = formItem.elements;

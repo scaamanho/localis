@@ -43,6 +43,7 @@ root.addEventListener('click', (e) => {
     const collapsed = !sec.classList.contains('collapsed');
     sec.classList.toggle('collapsed', collapsed);
     t.setAttribute('aria-expanded', String(!collapsed));
+    t.setAttribute('aria-label', `${collapsed ? 'Expand' : 'Collapse'} ${sec.querySelector('.sec-title').textContent}`);
     updateSection(id, { collapsed });
   }
 });
@@ -66,8 +67,7 @@ function renderTabs() {
   nav.replaceChildren(...state.pages.map((p, i) => {
     const b = document.createElement('button');
     b.className = 'ptab'; b.type = 'button'; b.dataset.page = p.id;
-    b.setAttribute('role', 'tab');
-    b.setAttribute('aria-selected', String(p.id === cur?.id));
+    b.setAttribute('aria-current', p.id === cur?.id ? 'page' : 'false');
     if (i < 9) b.title = `Alt+${i + 1}`;
     b.textContent = (p.icon ? p.icon + ' ' : '') + p.title;
     return b;
@@ -151,6 +151,12 @@ function applyFilter() {
   matches = [];
   let any = false;
   for (const sec of root.querySelectorAll('.sec')) {
+    const toggle = sec.querySelector('[data-action="toggle"]');
+    const collapsed = sec.classList.contains('collapsed');
+    const title = sec.querySelector('.sec-title').textContent;
+    toggle.disabled = !!term;
+    toggle.setAttribute('aria-expanded', String(!!term || !collapsed));
+    toggle.setAttribute('aria-label', term ? `Expanded during search: ${title}` : `${collapsed ? 'Expand' : 'Collapse'} ${title}`);
     let visible = 0;
     for (const it of sec.querySelectorAll('.item')) {
       const ok = !term || it.dataset.search.includes(term);

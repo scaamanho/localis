@@ -10,6 +10,7 @@ class Element extends EventTarget {
   replacement = null;
 
   replaceWith(node) { this.replacement = node; }
+  setAttribute() {}
 }
 
 beforeEach(() => {

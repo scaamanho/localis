@@ -13,10 +13,10 @@
   <aside class="side">
     <div class="side-brand"><img src="icons/icon48.png" alt="" width="32" height="32"><strong>Localis</strong></div>
     <nav id="tabs">
-      <button data-tab="dash" aria-selected="true">▦ Content</button>
-      <button data-tab="themes">🎨 Themes</button>
-      <button data-tab="settings">⚙ Settings</button>
-      <button data-tab="data">⇅ Data</button>
+      <button data-tab="dash" aria-current="page"><svg aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg> Content</button>
+      <button data-tab="themes"><svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="8" cy="10" r="1"/><circle cx="12" cy="7" r="1"/><circle cx="16" cy="10" r="1"/><path d="M12 21c-3-1-2-4 0-4h2a2 2 0 0 0 2-2"/></svg> Themes</button>
+      <button data-tab="settings"><svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3M5 5l2 2m10 10 2 2M19 5l-2 2M7 17l-2 2"/></svg> Settings</button>
+      <button data-tab="data"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M7 3v15m-4-4 4 4 4-4M17 21V6m-4 4 4-4 4 4"/></svg> Data</button>
     </nav>
     <a class="btn side-link" id="open-newtab" href="newtab.html"><span aria-hidden="true">↗</span> View start page</a>
   </aside>
@@ -27,20 +27,20 @@
       <div class="toolbar">
         <div>
           <h1>Content</h1>
-          <p class="hint">Drag sections by their headers and links by their cards, including between sections. Click a link to edit it.</p>
+          <p class="hint">Drag sections and links to reorder them, or use their move controls. Select a link to edit it.</p>
         </div>
         <div class="toolbar-actions">
           <button class="btn" id="btn-add-section">＋ New section</button>
         </div>
       </div>
       <div class="page-bar">
-        <div id="page-tabs" class="page-tabs" role="tablist" aria-label="Pages"></div>
+        <nav id="page-tabs" class="page-tabs" aria-label="Pages"></nav>
         <button class="btn small" id="btn-page-add">＋ Page</button>
         <span class="page-tools">
-          <button class="btn small" id="btn-page-edit" title="Rename / change page icon">✎</button>
-          <button class="btn small" id="btn-page-left" title="Move left">◀</button>
-          <button class="btn small" id="btn-page-right" title="Move right">▶</button>
-          <button class="btn small danger" id="btn-page-del" title="Delete page">🗑</button>
+          <button class="btn small" id="btn-page-edit" title="Rename / change page icon" aria-label="Edit page">✎</button>
+          <button class="btn small" id="btn-page-left" title="Move left" aria-label="Move page left">◀</button>
+          <button class="btn small" id="btn-page-right" title="Move right" aria-label="Move page right">▶</button>
+          <button class="btn small danger" id="btn-page-del" title="Delete page" aria-label="Delete page">✕</button>
         </span>
       </div>
       <div class="scope dash-scope" id="dash-scope">
@@ -205,7 +205,7 @@
   </main>
 
   <!-- ======================= DIÁLOGOS ======================= -->
-  <dialog id="dlg-item">
+  <dialog id="dlg-item" aria-labelledby="item-dlg-title">
     <form id="form-item">
       <h3 id="item-dlg-title">Link</h3>
       <label>Title <input name="title" required maxlength="160"></label>
@@ -239,7 +239,17 @@
     </form>
   </dialog>
 
-  <dialog id="dlg-section">
+  <dialog id="dlg-move-item" aria-labelledby="move-item-title">
+    <form id="form-move-item">
+      <h3 id="move-item-title">Move link</h3>
+      <label>Destination section <select name="sectionId"></select></label>
+      <label>Position <select name="beforeItemId"></select></label>
+      <p class="form-error" id="move-item-error" role="alert" hidden></p>
+      <div class="actions"><button type="button" class="btn" data-close>Cancel</button><button class="btn primary">Move link</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="dlg-section" aria-labelledby="section-dlg-title">
     <form id="form-section">
       <h3 id="section-dlg-title">Section</h3>
       <label>Title <input name="title" required maxlength="120"></label>
@@ -263,7 +273,7 @@
     </form>
   </dialog>
 
-  <dialog id="dlg-page">
+  <dialog id="dlg-page" aria-labelledby="page-dlg-title">
     <form id="form-page">
       <h3 id="page-dlg-title">Page</h3>
       <div class="row2">

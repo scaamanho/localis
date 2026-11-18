@@ -42,7 +42,7 @@ Download the **`localis-extension-v…zip`** asset from [GitHub Releases](https:
 | `Esc` | Clear the filter |
 | `Alt+1`…`Alt+9` | Switch pages |
 
-In the administration panel, deleting a link, section, or page shows an **Undo** action.
+In the administration panel, deleting a link, section, or page shows an **Undo** action. Use a link's **Move** control to choose a destination section and position without dragging; sections and pages also have move controls.
 
 ## Structure
 
@@ -59,7 +59,7 @@ lib/  dexie.mjs (Dexie 4.x, Apache-2.0)
 
 ## Tests
 
-Run the icon fallback regression tests with `node --test` (no additional dependencies).
+Run the regression tests with `node --test` (no additional dependencies).
 
 ## Data model (Dexie, version 4)
 

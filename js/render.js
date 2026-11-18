@@ -34,6 +34,7 @@ function letterIcon(title) {
   for (const c of s) h = (h * 31 + c.charCodeAt(0)) % 360;
   const n = el('span', 'ico ico-letter', s.charAt(0).toUpperCase() || '?');
   n.style.setProperty('--h', h);
+  n.setAttribute('aria-hidden', 'true');
   return n;
 }
 
@@ -67,7 +68,11 @@ function browserFallbackPixels() {
 /** Crea el icono de un item o sección. e = { iconType, icon, url, title } */
 export function makeIcon(e, provider = 'auto') {
   const type = e.iconType || 'favicon';
-  if (type === 'emoji' && e.icon) return el('span', 'ico ico-emoji', e.icon);
+  if (type === 'emoji' && e.icon) {
+    const icon = el('span', 'ico ico-emoji', e.icon);
+    icon.setAttribute('aria-hidden', 'true');
+    return icon;
+  }
   let src = '';
   if ((type === 'url' || type === 'upload') && e.icon) src = e.icon;
   else if (type === 'favicon') src = faviconUrl(e.url, provider);
@@ -97,27 +102,28 @@ function itemNode(it, settings, edit) {
   if (it.description) root.title = it.description;
   if (edit) {
     root.draggable = true;
-    root.dataset.action = 'edit-item';
-    root.tabIndex = 0;
   } else {
     root.href = normalizeUrl(it.url) || '#';
     const target = it.target === 'default' || !it.target ? settings.openIn : it.target;
     if (target === 'new') { root.target = '_blank'; root.rel = 'noopener noreferrer'; }
   }
-  root.append(makeIcon(it, settings.faviconProvider));
   const text = el('span', 'item-text');
   text.append(el('span', 'item-title', it.title));
   if (it.description) text.append(el('span', 'item-desc', it.description));
-  root.append(text);
   if (edit) {
+    const editButton = el('button', 'item-edit');
+    editButton.type = 'button'; editButton.dataset.action = 'edit-item'; editButton.dataset.id = it.id;
+    editButton.setAttribute('aria-label', `Edit ${it.title}`);
+    editButton.append(makeIcon(it, settings.faviconProvider), text);
     const acts = el('span', 'item-actions');
-    for (const [a, label, t] of [['dup-item', '⧉', 'Duplicate'], ['del-item', '✕', 'Delete']]) {
+    for (const [a, label, t] of [['move-item', '↕', 'Move'], ['dup-item', '⧉', 'Duplicate'], ['del-item', '✕', 'Delete']]) {
       const b = el('button', 'mini', label);
       b.type = 'button'; b.title = t; b.dataset.action = a; b.dataset.id = it.id;
+      b.setAttribute('aria-label', `${t} ${it.title}`);
       acts.append(b);
     }
-    root.append(acts);
-  }
+    root.append(editButton, acts);
+  } else root.append(makeIcon(it, settings.faviconProvider), text);
   return root;
 }
 
@@ -151,15 +157,17 @@ export function renderDashboard(root, { sections, items, settings }, { edit = fa
     const chev = el('button', 'chev', '▾');
     chev.type = 'button'; chev.dataset.action = 'toggle'; chev.dataset.id = sec.id;
     chev.title = 'Collapse / expand'; chev.setAttribute('aria-expanded', String(!sec.collapsed));
+    chev.setAttribute('aria-label', `${sec.collapsed ? 'Expand' : 'Collapse'} ${sec.title}`);
     head.append(chev);
     if (sec.icon) head.append(makeIcon({ iconType: looksLikeImage(sec.icon) ? 'url' : 'emoji', icon: sec.icon, title: sec.title }));
     head.append(el('h2', 'sec-title', sec.title));
     if (edit) {
       head.append(el('span', 'sec-count', String(list.length)));
       const acts = el('span', 'sec-actions');
-      for (const [a, label, t] of [['move-left', '◀', 'Move earlier'], ['move-right', '▶', 'Move later'], ['edit-section', '✎', 'Edit section'], ['del-section', '🗑', 'Delete section']]) {
+      for (const [a, label, t] of [['move-left', '◀', 'Move earlier'], ['move-right', '▶', 'Move later'], ['edit-section', '✎', 'Edit section'], ['del-section', '✕', 'Delete section']]) {
         const b = el('button', 'mini', label);
         b.type = 'button'; b.title = t; b.dataset.action = a; b.dataset.id = sec.id;
+        b.setAttribute('aria-label', `${t} ${sec.title}`);
         acts.append(b);
       }
       head.append(acts);
