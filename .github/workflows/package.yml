@@ -81,6 +81,7 @@ jobs:
       - name: Attach extension ZIP to release
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
           ARCHIVE: ${{ needs.package.outputs.archive }}
           RELEASE_TAG: ${{ github.event.release.tag_name || inputs.release_tag }}
         run: gh release upload "$RELEASE_TAG" "$ARCHIVE" --clobber
