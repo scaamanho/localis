@@ -288,7 +288,7 @@ formItem.addEventListener('submit', async (e) => {
   const type = f.iconType.value;
   const icon = f.icon.value.trim();
   const problem = !url ? 'The URL is invalid (http, https, ftp, mailto, chrome, file and others are supported).'
-    : type === 'url' && !/^(https?:|data:image\/)/i.test(icon) ? 'The icon URL must start with http(s):'
+    : type === 'url' && icon && !/^(https?:|data:image\/)/i.test(icon) ? 'The icon URL must start with http(s):'
     : type === 'upload' && !icon ? 'Choose an image to upload.'
     : type === 'emoji' && !icon ? 'Enter an emoji or short text.' : '';
   if (problem) { err.textContent = problem; err.hidden = false; return; }

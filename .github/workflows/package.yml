@@ -33,20 +33,25 @@ jobs:
         run: |
           set -euo pipefail
           version="$(node -p "require('./manifest.json').version")"
-          archive="dist/localis-v${version}.zip"
+          archive="dist/localis-extension-v${version}.zip"
           mkdir -p dist
-          zip -q -r "$archive" \
+          files=(
             manifest.json \
             background.js \
             admin.html \
             newtab.html \
             css/base.css css/admin.css css/newtab.css \
-            js \
-            lib \
-            icons
+            js/admin.js js/boot.js js/db.js js/io.js js/newtab.js js/render.js js/themes.js \
+            lib/dexie.mjs lib/LICENSE \
+            icons/icon16.png icons/icon32.png icons/icon48.png icons/icon128.png
+          )
+          zip -q "$archive" "${files[@]}"
 
-          if unzip -Z1 "$archive" | grep -Fxq "index.html"; then
-            echo "::error::The extension ZIP must not contain index.html"
+          expected="$(printf '%s\n' "${files[@]}" | sort)"
+          actual="$(unzip -Z1 "$archive" | sort)"
+          if [[ "$actual" != "$expected" ]]; then
+            echo "::error::The extension ZIP contains unexpected or missing files"
+            diff -u <(printf '%s\n' "$expected") <(printf '%s\n' "$actual") || true
             exit 1
           fi
 

@@ -14,7 +14,7 @@ export function faviconUrl(pageUrl, provider = 'auto', size = 32) {
   let host;
   try { host = new URL(pageUrl).hostname; } catch { return ''; }
   switch (resolveProvider(provider)) {
-    case 'browser': return `${chrome.runtime.getURL('/_favicon/')}?pageUrl=${encodeURIComponent(pageUrl)}&size=${size}`;
+    case 'browser': return hasChrome() ? `${chrome.runtime.getURL('/_favicon/')}?pageUrl=${encodeURIComponent(pageUrl)}&size=${size}` : '';
     case 'duckduckgo': return `https://icons.duckduckgo.com/ip3/${host}.ico`;
     case 'google': return `https://www.google.com/s2/favicons?domain=${host}&sz=${size}`;
     default: return '';
@@ -37,6 +37,33 @@ function letterIcon(title) {
   return n;
 }
 
+function iconPixels(img) {
+  const canvas = document.createElement('canvas');
+  canvas.width = canvas.height = 32;
+  canvas.getContext('2d').drawImage(img, 0, 0, 32, 32);
+  return canvas.toDataURL();
+}
+
+const browserFallbacks = new Map();
+
+function browserFallbackPixels() {
+  const dark = matchMedia('(prefers-color-scheme: dark)').matches;
+  if (!browserFallbacks.has(dark)) {
+    browserFallbacks.set(dark, new Promise((resolve) => {
+      const img = document.createElement('img');
+      img.addEventListener('load', () => resolve(iconPixels(img)), { once: true });
+      img.addEventListener('error', () => {
+        console.warn('Unable to load the browser fallback favicon; keeping letter icons.');
+        browserFallbacks.delete(dark);
+        resolve(null);
+      }, { once: true });
+      // Chromium devuelve un globo, no un error, cuando no tiene favicon en su caché.
+      img.src = faviconUrl('https://localis-favicon-fallback.invalid/', 'browser');
+    }));
+  }
+  return browserFallbacks.get(dark);
+}
+
 /** Crea el icono de un item o sección. e = { iconType, icon, url, title } */
 export function makeIcon(e, provider = 'auto') {
   const type = e.iconType || 'favicon';
@@ -49,7 +76,13 @@ export function makeIcon(e, provider = 'auto') {
   // Se muestra la letra al instante y se sustituye por la imagen solo si carga bien (sin huecos ni parpadeos).
   const img = el('img', 'ico ico-img');
   Object.assign(img, { alt: '', draggable: false, referrerPolicy: 'no-referrer' });
-  img.addEventListener('load', () => letter.replaceWith(img), { once: true });
+  img.addEventListener('load', async () => {
+    if (type === 'favicon' && resolveProvider(provider) === 'browser') {
+      const fallback = await browserFallbackPixels();
+      if (!fallback || iconPixels(img) === fallback) return;
+    }
+    letter.replaceWith(img);
+  }, { once: true });
   img.src = src;
   return letter;
 }
