@@ -10,7 +10,7 @@ import {
 } from './themes.js';
 import { renderDashboard, makeIcon } from './render.js';
 import {
-  exportData, importData, parseImportText, parseBookmarksHtml, normalizeUrl,
+  exportData, importData, parseImportText, parseBookmarksHtml, normalizeUrl, titleFromUrl,
   download, stamp, snapshot, restoreBackup, FORMAT, VERSION,
 } from './io.js';
 
@@ -311,7 +311,13 @@ function updateItemIconUI() {
   const prev = makeIcon({ iconType: type, icon: f.icon.value.trim(), url, title: f.title.value }, state.settings.faviconProvider);
   $('#item-icon-preview').replaceChildren(prev);
 }
-formItem.addEventListener('input', updateItemIconUI);
+formItem.addEventListener('input', (e) => {
+  const f = formItem.elements;
+  if (editingItemId == null && e.target === f.url && e.inputType === 'insertFromPaste' && !f.title.value.trim()) {
+    f.title.value = titleFromUrl(f.url.value);
+  }
+  updateItemIconUI();
+});
 $('#item-icon-file').addEventListener('click', () => $('#item-icon-input').click());
 $('#item-icon-input').addEventListener('change', async (e) => {
   const file = e.target.files[0];

@@ -19,6 +19,11 @@ export function normalizeUrl(raw) {
   } catch { return ''; }
 }
 
+export function titleFromUrl(raw) {
+  const url = normalizeUrl(raw);
+  return url ? new URL(url).hostname.slice(0, 160) : '';
+}
+
 // ---------------------------------------------------------------- exportar
 export async function exportData({ content = true, settings = true, themes = true } = {}) {
   const out = { format: FORMAT, version: VERSION, exportedAt: new Date().toISOString() };
