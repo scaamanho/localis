@@ -79,7 +79,7 @@ export const BUILTIN_THEMES = [
     bg: '#1b2a4e', bgImage: 'linear-gradient(135deg, #102a56 0%, #145da0 55%, #087f8c 100%)', overlay: 10,
     surface: '#0b2038', surfaceOpacity: 55, surfaceBlur: 16,
     item: '#ffffff', itemOpacity: 12, itemHover: '#ffffff',
-    text: '#ffffff', muted: '#eef2ff', accent: '#ffd36b', border: '#ffffff', radius: 16, shadow: 25, secStyle: 'outline',
+    text: '#ffffff', muted: '#eef2ff', accent: '#ffd36b', border: '#ffffff', radius: 16, shadow: 25, secStyle: 'minimal',
   },
   {
     id: 'arctic', name: 'Arctic',

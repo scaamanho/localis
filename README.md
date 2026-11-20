@@ -66,7 +66,7 @@ You can also configure **Shortcuts** in **Manage → Search**, one per line in t
 
 For example, `yt ambient music` searches YouTube for “ambient music.” A shortcut only runs when its key matches a configured entry; otherwise the text follows the normal link-filtering and default-search behavior. The **Show search** option in Manage can hide the search box.
 
-In the administration panel, deleting a link, section, or page shows an **Undo** action. Use a link's **Move** control to choose a destination section and position without dragging; sections and pages also have move controls.
+In the administration panel, deleting a link, section, or page shows an **Undo** action. Hover over or focus a link to reveal its actions (always visible on touch devices). Use its **Move** control to choose a destination section and position without dragging; sections and pages also have move controls.
 
 ## Structure
 

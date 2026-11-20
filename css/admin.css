@@ -61,6 +61,22 @@ code { background: var(--a-bg); padding: 1px 5px; border-radius: 4px; }
 .dash-scope { padding: 22px; border-radius: 14px; border: 1px solid var(--a-border); overflow: hidden; min-height: 400px; }
 .dash-scope .dash-wrap { max-width: max(0px, calc(var(--max-w, 1500px) - 48px)); margin-inline: auto; }
 
+@media (hover: hover) and (pointer: fine) {
+  .dash-scope .is-edit .sec { overflow: visible; }
+  .dash-scope .is-edit .sec:hover, .dash-scope .is-edit .sec:focus-within { position: relative; z-index: 1; }
+  .dash-scope .is-edit .sec-head { border-radius: var(--radius) var(--radius) 0 0; }
+  .dash-scope .is-edit .sec.collapsed .sec-head { border-radius: var(--radius); }
+  .dash-scope .is-edit .item:hover, .dash-scope .is-edit .item:focus-within { z-index: 1; }
+  .dash-scope .item-actions {
+    position: absolute; right: 0; bottom: calc(100% - 4px); flex-wrap: nowrap;
+    padding: 3px; border-radius: 8px; background: var(--a-panel); border: 1px solid var(--a-border);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .2); opacity: 0; pointer-events: none;
+  }
+  .dash-scope .item:hover .item-actions, .dash-scope .item:focus-within .item-actions { opacity: 1; pointer-events: auto; }
+  .dash-scope .sec-head .mini { background: transparent; }
+  .dash-scope .sec-head .mini:hover { background: rgba(0, 0, 0, .25); }
+}
+
 /* tarjetas y formularios */
 .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr)); gap: 16px; align-items: start; }
 .card { background: var(--a-panel); border: 1px solid var(--a-border); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px; margin: 0; min-width: 0; }
